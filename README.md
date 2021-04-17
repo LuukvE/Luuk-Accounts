@@ -60,7 +60,7 @@ type Link = {
   email: string;
   password?: string;
   redirect: string;
-  expired: Date;
+  expired?: Date;
   created: Date;
 };
 
