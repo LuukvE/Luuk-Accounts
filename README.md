@@ -53,9 +53,9 @@ type Session = {
   created: Date;
 };
 
-type Trigger = {
+// Links are used to directly sign up and sign in a user
+type Link = {
   id: string;
-  type: string; // sign-up, sign-in
   name: string;
   email: string;
   password?: string;
@@ -69,7 +69,7 @@ type Log = {
   user?: string;
   group?: string;
   session?: string;
-  trigger?: string;
+  link?: string;
   type: string; // system-error, user-error, user-created, user-updated, session-created, user-signed-in, email-sent
   action: string;
   detail: string;
@@ -98,6 +98,7 @@ type Configuration = {
 
 ## Considerations
 - Passwords are hashed before saved
+- All redirects use status 302 Found
 - Email addresses are case-insensitive
 - All POST requests and responses are Content-Type JSON
 - Cookies are protected against forgery using a signature cookie
@@ -140,7 +141,11 @@ type LoadResponse = {
     name: string;
     description: string;
     created: Date;
-  }[]
+  }[],
+  permissions?: {
+    slug: string;
+    description: string;
+  }[];
 };
 ```
 
@@ -156,57 +161,65 @@ const publicKey = () => Configuration {
 const autoSignIn = (cookie: string) => null | SignInResponse {
   // If cookie is empty return null
   // Find a non-expired session, if not found return null
-  // Return SignInResponse
+  // Find thisUser, all its groups and their children
+  // Return response
 };
 
 // POST /sign-in
 const manualSignIn = (email: string, password: string) => Error | SignInResponse {
-  // Find the user, if not found return wrong credentials error
+  // Find thisUser, if not found return wrong credentials error
   // Validate password against hashed password, if invalid return wrong credentials error
-  // Create a session object and return SignInResponse
+  // Create a session object
+  // Find all thisUser groups and their children
+  // Return response
 };
 
 // POST /sign-up
 const manualSignUp = (email: string, password: string, redirect: string, name?: string) => Error | null {
   // Find user, if found send forgot password email and return null
   // If password too short return password insecure error
-  // Hash the password and create the sign up trigger
-  // Send an email with a link that executes the trigger and return null
+  // Hash the password and create a link
+  // Send an email with the link and return null
 };
 
 // POST /forgot-password
-const forgotPassword = (email: string, redirect: string) => void {
-  // Find user, if not found return
-  // Create a forgot password trigger and send an email with a link that executes the trigger
+const forgotPassword = (email: string, redirect: string) => null {
+  // Find thisUser, if not found return null
+  // Create a link and send an email
+  // Return null
 };
 
-// GET /trigger?id=<id>
-const trigger = (id: string) => void {
-  // Find the non-expired trigger, if not found redirect to link expired page
-  // Execute the trigger and set cookie
-  // Update the trigger to expired: now()
-  // Redirect to trigger redirect property
+// GET /email-sign-in?id=<id>
+const emailSignIn = (id: string) => void {
+  // Find the non-expired link, if not found redirect to link expired page
+  // Find thisUser, if not found create it
+  // Create session and set cookie
+  // Update the link to expired: now()
+  // Redirect to link redirect property
 };
 
 // POST /google-sign-in
 const googleSignIn = (code: string) => Error | SignInResponse {
   // Request an access and id tokens from Google using the code
-  // Request user information from Google using the tokens
+  // Request thisUser information from Google using the tokens
   // If either of these requests failed return authentication failed error
-  // If the user does not exist, create the user account
-  // Update the user account with Google id, email, name and picture
-  // Create a session and return SignInResponse
+  // If thisUser does not exist, create thisUser
+  // Update thisUser account with Google id, email, name and picture
+  // Create a session
+  // Find all thisUser groups and their children
+  // Return response
 };
 
 // GET /google-redirect
 const googleRedirect = () => void {
-  // Redirect the user to a Google Signin page with a 302 Found
+  // Redirect to a Google Signin page
 };
 
 // POST /sign-out
-const signOut = (cookie: string) => void {
+const signOut = (cookie: string) => null {
   // If session exists, update it to expired: now()
   // If cookie is not empty, remove it
+  // Return null
 };
 ```
 
@@ -221,18 +234,19 @@ Cookie required to send requests
 // POST /load
 const load = (cookie: string) => LoadResponse {
   // Find all users part of ownedGroups or their children
+  // If thisUser permissions include root-admin, find all permissions
   // return response
 };
 
 // POST /set-user
-const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string, groups?: string[], name?: string, password?: string) => Error | null {
+const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string, groups?: string[], name?: string, password?: string) => Error | LoadResponse {
   // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
   // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
   // If no payloadId or payloadEmail provided, return invalid request error
   // Find the targetUser using payloadId or payloadEmail, if not found create it with email, name and password
   // Remove all ownedGroups that are not found in payloadGroups from targetUser
   // Add all payloadGroups to targetUser groups
-  // If sendEmail is defined, create sign-in trigger and send email to targetUser
-  // return null
+  // If sendEmail is defined, create a link and send email to targetUser
+  // Return load(cookie)
 };
 ```
