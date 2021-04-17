@@ -167,6 +167,7 @@ const autoSignIn = (cookie: string) => null | SignInResponse {
   // If cookie is empty return null
   // Find a non-expired session, if not found return null
   // Find thisUser, all its groups and their children
+  // Create JWT token
   // Return response
 };
 
@@ -176,6 +177,7 @@ const manualSignIn = (email: string, password: string) => Error | SignInResponse
   // Validate password against hashed password, if invalid return wrong credentials error
   // Create a session object
   // Find all thisUser groups and their children
+  // Create JWT token
   // Return response
 };
 
@@ -193,8 +195,8 @@ const forgotPassword = (email: string, redirect: string) => null {
   // Return null
 };
 
-// GET /email-sign-in?id=<id>
-const emailSignIn = (id: string) => void {
+// GET /sign-in-link?id=<id>
+const signInLink = (id: string) => void {
   // Find the non-expired link, if not found redirect to link expired page
   // Find thisUser, if not found create it
   // Create session and set cookie
@@ -211,6 +213,7 @@ const googleSignIn = (code: string) => Error | SignInResponse {
   // Update thisUser account with Google id, email, name and picture
   // Create a session
   // Find all thisUser groups and their children
+  // Create JWT token
   // Return response
 };
 
