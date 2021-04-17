@@ -1,18 +1,22 @@
 # Auth
+
 A complete authentication and user management solution.
 
 ## Functionality
+
 - [x] Users can sign up and sign in manually or with Google
 - [x] Users can manage other users, through groups and permissions
 - [x] The system can send email verification and forgot password emails
 
 ## APIs
+
 - **Google OAuth 2.0:** Enables Google Sign-in
 - **Google Cloud Functions:** Hosts the TypeScript API
 - **Google Cloud FireStore:** Hosts the database
 - **Google Mail:** Enables automated e-mails
 
 ## Database
+
 ```typescript
 type User = {
   id: string;
@@ -97,6 +101,7 @@ type Configuration = {
 ```
 
 ## Considerations
+
 - All redirects use status 302 Found
 - Passwords are hashed before saved
 - Email addresses are case-insensitive
@@ -106,13 +111,26 @@ type Configuration = {
 - Function arguments can come from a cookie, the request body or the request parameters
 
 ## Response Types
+
 ```typescript
-type Error = {
-  type: string;
+type KeyResponse = {
+  type: 'key';
+  key: string;
+};
+
+type ErrorResponse = {
+  type: 'error';
+  status: number;
   message: string;
 };
 
+type RedirectResponse = {
+  type: 'redirect';
+  location: string;
+};
+
 type SignInResponse = {
+  type: 'sign-in';
   id: string;
   token: string;
   permissions: string[];
@@ -125,6 +143,7 @@ type SignInResponse = {
 };
 
 type LoadResponse = {
+  type: 'load';
   // All ownedGroups and their children
   groups: {
     slug: string;
@@ -133,7 +152,7 @@ type LoadResponse = {
     name: string;
     description: string;
     created: Date;
-  }[],
+  }[];
   // All users part of ownedGroups and their children
   users: {
     id: string;
@@ -143,27 +162,54 @@ type LoadResponse = {
     google: boolean;
     picture: string;
     groups: string[];
-  }[],
+  }[];
   // All properties below are only loaded with root-admin permission
-  permissions?: Permission[],
-  sessions?: Session[],
-  links?: Link[],
-  logs?: Log[],
-  emails?: Email[],
-  configurations?: Configuration[]
+  permissions?: Permission[];
+  sessions?: Session[];
+  links?: Link[];
+  logs?: Log[];
+  emails?: Email[];
+  configurations?: Configuration[];
 };
 ```
 
 ## Public Endpoints
+
 No cookie required to send requests
+
 ```typescript
 // GET /public-key
-const publicKey = () => Configuration {
+const publicKey = (): KeyResponse => {
   // Return public key used to decrypt JWT tokens
 };
 
+// GET /google-redirect
+const googleRedirect = (redirect: string): RedirectResponse => {
+  // Redirect to a Google Signin page
+};
+
+// GET /sign-in-link?id=<id>
+const signInLink = (id: string): RedirectResponse => {
+  // Find the non-expired link, if not found redirect to link expired page
+  // Find thisUser, if not found create it
+  // Create session and set cookie
+  // Update the link to expired: now()
+  // Redirect to link redirect property
+};
+
+// GET /google-sign-in
+const googleSignIn = (code: string, redirect: string): RedirectResponse => {
+  // Request an access and id tokens from Google using the code
+  // Request thisUser information from Google using the tokens
+  // If either of these requests failed redirect with error in parameter
+  // If thisUser does not exist, create thisUser
+  // Update thisUser account with Google id, email, name and picture
+  // Create a session and set a cookie
+  // Redirect
+};
+
 // POST /auto-sign-in
-const autoSignIn = (cookie: string) => null | SignInResponse {
+const autoSignIn = (cookies: Cookies): null | SignInResponse => {
   // If cookie is empty return null
   // Find a non-expired session, if not found return null
   // Find thisUser, all its groups and their children
@@ -172,7 +218,7 @@ const autoSignIn = (cookie: string) => null | SignInResponse {
 };
 
 // POST /sign-in
-const manualSignIn = (email: string, password: string) => Error | SignInResponse {
+const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {
   // Find thisUser, if not found return wrong credentials error
   // Validate password against hashed password, if invalid return wrong credentials error
   // Create a session object
@@ -182,7 +228,12 @@ const manualSignIn = (email: string, password: string) => Error | SignInResponse
 };
 
 // POST /sign-up
-const manualSignUp = (email: string, password: string, redirect: string, name?: string) => Error | null {
+const manualSignUp = (
+  email: string,
+  password: string,
+  redirect: string,
+  name?: string
+): ErrorResponse | null => {
   // Find user, if found send forgot password email and return null
   // If password too short return password insecure error
   // Hash the password and create a link
@@ -190,40 +241,13 @@ const manualSignUp = (email: string, password: string, redirect: string, name?: 
 };
 
 // POST /forgot-password
-const forgotPassword = (email: string, redirect: string) => null {
+const forgotPassword = (email: string, redirect: string): null => {
   // Find thisUser, if found create a link and send an email
   // Return null
 };
 
-// GET /sign-in-link?id=<id>
-const signInLink = (id: string) => void {
-  // Find the non-expired link, if not found redirect to link expired page
-  // Find thisUser, if not found create it
-  // Create session and set cookie
-  // Update the link to expired: now()
-  // Redirect to link redirect property
-};
-
-// POST /google-sign-in
-const googleSignIn = (code: string) => Error | SignInResponse {
-  // Request an access and id tokens from Google using the code
-  // Request thisUser information from Google using the tokens
-  // If either of these requests failed return authentication failed error
-  // If thisUser does not exist, create thisUser
-  // Update thisUser account with Google id, email, name and picture
-  // Create a session
-  // Find all thisUser groups and their children
-  // Create JWT token
-  // Return response
-};
-
-// GET /google-redirect
-const googleRedirect = () => void {
-  // Redirect to a Google Signin page
-};
-
 // POST /sign-out
-const signOut = (cookie: string) => null {
+const signOut = (cookies: Cookies): null => {
   // If session exists, update it to expired: now()
   // If cookie is not empty, remove it
   // Return null
@@ -231,7 +255,9 @@ const signOut = (cookie: string) => null {
 ```
 
 ## Protected Endpoints
+
 Cookie required to send requests
+
 ```typescript
 // Each endpoint first finds a non-expired session, if not found return not signed in error
 // Find thisUser related to the session, if not found return not signed in error
@@ -239,7 +265,7 @@ Cookie required to send requests
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
 
 // POST /load
-const load = (cookie: string) => LoadResponse {
+const load = (cookies: Cookies): LoadResponse => {
   // Find all users part of ownedGroups or their children
   // If thisUser permissions don't include root-admin, return response
   // Find all non-expired objects that are not users or groups
@@ -247,7 +273,15 @@ const load = (cookie: string) => LoadResponse {
 };
 
 // POST /set-user
-const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string, groups?: string[], name?: string, password?: string) => Error | LoadResponse {
+const setUser = (
+  cookies: Cookies,
+  id?: string,
+  email?: string,
+  sendEmail?: string,
+  groups?: string[],
+  name?: string,
+  password?: string
+): ErrorResponse | LoadResponse => {
   // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
   // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
   // If no payloadId or payloadEmail provided, return invalid request error
@@ -259,8 +293,16 @@ const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string
 };
 
 // POST /set-config
-const setConfig = (cookie: string, permissions: Permission[], sessions: Session[], links: Link[], logs: Log[], emails: Email[], configurations: Configuration[]) => LoadResponse {
+const setConfig = (
+  cookies: Cookies,
+  permissions: Permission[],
+  sessions: Session[],
+  links: Link[],
+  logs: Log[],
+  emails: Email[],
+  configurations: Configuration[]
+): LoadResponse => {
   // For each object type remove all non-expired objects not in the list and add or update all others
   // Return load(cookie)
-}
+};
 ```
