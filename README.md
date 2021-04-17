@@ -27,7 +27,7 @@ type User = {
 
 // Groups form a hierarchy in two ways:
 // - Parent groups share their permissions with all their children
-// - Users that are part of a group with the "owner" permission another group (ownedGroup) can:
+// - Users that are part of a group with the "owner" permission of another group (ownedGroup) can:
 //   - Send welcome or forgot-password emails
 //   - View all ownedGroups and their children
 //   - Create new users as long as they do not exist
