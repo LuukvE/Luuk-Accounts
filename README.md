@@ -167,10 +167,11 @@ const manualSignIn = (email: string, password: string) => Error | SignInResponse
 };
 
 // POST /sign-up
-const manualSignUp = (email: string, password: string, redirect: string, name?: string) => void {
-  // Find user, if found send forgot password email and return
+const manualSignUp = (email: string, password: string, redirect: string, name?: string) => Error | null {
+  // Find user, if found send forgot password email and return null
+  // If password too short return password insecure error
   // Hash the password and create the sign up trigger
-  // Send an email with a link that executes the trigger
+  // Send an email with a link that executes the trigger and return null
 };
 
 // POST /forgot-password
