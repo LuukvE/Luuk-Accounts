@@ -26,12 +26,13 @@ type User = {
 };
 
 // Groups form a hierarchy in two ways:
-// - Parent groups share their permissions with all their children
+// - Groups share their permissions with all their parents
 // - Users that are part of a group with the "owner" permission of another group (ownedGroup) can:
-//   - Send welcome or forgot-password emails
 //   - View all ownedGroups and their children
 //   - Create new users as long as they do not exist
-//   - Add or remove the ownedGroup or its children from all users
+//   - Add or remove ownedGroups or their children from all users
+//   - Send welcome or forgot-password emails to users in their ownedGroups or their children
+// This means the most powerful group is at the top of the tree, least powerful are at the bottom
 
 type Group = {
   slug: string;
@@ -213,7 +214,7 @@ Cookie required to send requests
 ```typescript
 // Each endpoint first finds a non-expired session, if not found return not signed in error
 // Find thisUser related to the session, if not found return not signed in error
-// Find all permissions thisUser has
+// Find all permissions thisUser has by collecting all permissions from users groups and their children
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
 
 // POST /load
