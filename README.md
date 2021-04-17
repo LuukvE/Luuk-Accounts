@@ -1,10 +1,10 @@
 # Auth
-Allow users to sign up / sign manually or with Google.
+Allow users to sign up and sign in manually or with Google.
 
 ## APIs
 - [x] **Google OAuth 2.0:** Enables Google Sign-in
 - [x] **Google Cloud Functions:** Hosts the TypeScript API
-- [x] **Google Cloud FireStore:** Stores the user accounts and permissions
+- [x] **Google Cloud FireStore:** Provides the database
 
 ## Considerations
 - Email addresses are case-insensitive
@@ -12,6 +12,45 @@ Allow users to sign up / sign manually or with Google.
 - Cookies are protected against forgery using a signature cookie
 - Requests from an allowed origin should return CORS headers with that origin
 - Function arguments can come from a cookie, the request body or the request parameters
+
+## Database
+```typescript
+type User = {
+
+};
+
+type Session = {
+
+};
+
+type Permission = {
+
+};
+
+type Group = {
+
+};
+
+type Trigger = {
+
+};
+
+type Key = {
+
+};
+
+type Templates = {
+
+};
+
+type Email = {
+
+};
+
+type Log = {
+
+};
+```
 
 ## Endpoints
 ```typescript
