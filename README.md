@@ -30,7 +30,7 @@ type User = {
 // - Users that are part of a group with the "owner" permission of another group can:
 //   - Add or remove the group slug from all other users
 //   - Create new users as long as they do not exist
-//   - Send welcome emails
+//   - Send welcome or forgot-password emails
 type Group = {
   slug: string;
   permissions: string[];
