@@ -19,7 +19,7 @@ type User = {
   name: string;
   email: string;
   picture: string; // URL
-  google: string; // ID
+  google?: number;
   created: Date;
 };
 
@@ -61,7 +61,7 @@ type Email = {
 
 type Log = {
   id: string;
-  type: LogType; // User Error, System Error, Session Created, User Created, Trigger Created, Permission Created, Group Created, Email Sent
+  type: LogType; // User Error, System Error, Session Created, User Created, Permission Created, Group Created, Email Sent
   action: string;
   detail: string;
   created: Date;
