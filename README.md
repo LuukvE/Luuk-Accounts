@@ -92,9 +92,12 @@ type Log = {
 ## Endpoints
 ```typescript
 type SignInResponse = {
-  user: User,
-  groups: Group[],
-  session: Session,
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+  permissions: string;
+  session: string;
   token: string
 };
 
