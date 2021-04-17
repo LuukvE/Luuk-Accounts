@@ -28,7 +28,7 @@ type User = {
 // Groups form a hierarchy in two ways:
 // - Parent groups share their permissions with all their children
 // - Users that are part of a group with the "owner" permission of another group can:
-//   - Add or remove the groups permissions from all other users
+//   - Add or remove the group slug from all other users
 //   - Create new users as long as they do not exist
 //   - Send welcome emails
 type Group = {
@@ -95,12 +95,18 @@ type Configuration = {
 - Requests from an allowed origin return CORS headers with that origin
 - Function arguments can come from a cookie, the request body or the request parameters
 
-## Endpoints
+## Response Types
 ```typescript
+type Error = {
+  type: string;
+  message: string;
+};
+
 type SignInResponse = {
   id: string;
   email: string;
   password: boolean;
+  google: boolean;
   name: string;
   picture: string;
   permissions: string;
@@ -108,11 +114,30 @@ type SignInResponse = {
   token: string
 };
 
-type Error = {
-  code: number;
-  type: string;
-  message: string;
+type LoadResponse = {
+  users: {
+    id: string;
+    name: string;
+    email: string;
+    password: boolean;
+    google: boolean;
+    picture: string;
+    groups: string[];
+  }[],
+  groups: {
+    slug: string;
+    parent?: string; // group slug
+    name: string;
+    description: string;
+    created: Date;
+  }[]
 };
+```
+
+## Endpoints
+```typescript
+
+// Public Endpoints: No cookie required to send requests
 
 // GET /public-key
 const publicKey = () => Configuration {
@@ -120,8 +145,8 @@ const publicKey = () => Configuration {
 };
 
 // POST /auto-sign-in
-const autoSignIn = (cookie?: string) => null | SignInResponse {
-  // If no cookie return null
+const autoSignIn = (cookie: string) => null | SignInResponse {
+  // If cookie is empty return null
   // Find a non-expired session, if not found return null
   // Return SignInResponse
 };
@@ -170,8 +195,32 @@ const googleRedirect = () => void {
 };
 
 // POST /sign-out
-const signOut = (cookie?: string) => void {
+const signOut = (cookie: string) => void {
   // If session exists, update it to expired: now()
-  // If cookie exists, remove it
+  // If cookie is not empty, remove it
+};
+
+// Protected Endpoints: Cookie required to send requests
+// Each endpoint first finds a non-expired session, if not found return not signed in error
+// Find thisUser related to the session, if not found return not signed in error
+// Find all permissions thisUser has
+// Find all ownerGroups that have an owner permission that is part of thisUser permissions
+
+// POST /load
+const load = (cookie: string) => LoadResponse {
+  // Find all users part of ownerGroups
+  // return response
+};
+
+// POST /set-user
+const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string, groups?: string[], name?: string, password?: string) => Error | null {
+  // If no ownerGroups were found or any payloadGroups are not part of ownerGroups, return not authorized error
+  // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
+  // If no payloadId or payloadEmail provided, return invalid request error
+  // Find the setUser using payloadId or payloadEmail, if not found create it with email, name and password
+  // Remove all ownerGroups that are not found in payloadGroups from setUser
+  // Add all payloadGroups to setUser groups
+  // If sendEmail is defined, create sign-in trigger and send email to setUser
+  // return null
 };
 ```
