@@ -32,7 +32,7 @@ type User = {
 //   - Create new users as long as they do not exist
 //   - Add or remove ownedGroups or their children from all users
 //   - Send welcome or forgot-password emails to users in their ownedGroups or their children
-// This means the most powerful group is at the top of the tree, least powerful are at the bottom
+// This means the most powerful group is at the top of the tree, least powerful is at the bottom
 
 type Group = {
   slug: string;
