@@ -97,8 +97,8 @@ type Configuration = {
 ```
 
 ## Considerations
-- Passwords are hashed before saved
 - All redirects use status 302 Found
+- Passwords are hashed before saved
 - Email addresses are case-insensitive
 - All POST requests and responses are Content-Type JSON
 - Cookies are protected against forgery using a signature cookie
