@@ -112,14 +112,14 @@ type Error = {
 
 type SignInResponse = {
   id: string;
+  token: string;
+  permissions: string[];
+  session: string;
   email: string;
-  password: boolean;
-  google: boolean;
   name: string;
   picture: string;
-  permissions: string;
-  session: string;
-  token: string
+  password: boolean;
+  google: boolean;
 };
 
 type LoadResponse = {
