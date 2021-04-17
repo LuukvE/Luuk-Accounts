@@ -239,7 +239,8 @@ Cookie required to send requests
 // POST /load
 const load = (cookie: string) => LoadResponse {
   // Find all users part of ownedGroups or their children
-  // If thisUser permissions include root-admin, find all permissions
+  // If thisUser permissions don't include root-admin, return response
+  // Find all non-expired objects that are not users or groups
   // return response
 };
 
@@ -256,7 +257,7 @@ const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string
 };
 
 // POST /set-config
-const setConfig = (cookie: string, permissions: Permission[], sessions: Session[], links: Link[], logs: Log[], emails: Email[], configurations?: Configuration[]) => LoadResponse {
+const setConfig = (cookie: string, permissions: Permission[], sessions: Session[], links: Link[], logs: Log[], emails: Email[], configurations: Configuration[]) => LoadResponse {
   // For each object type remove all objects not in the list and add or update all others
   // Return load(cookie)
 }
