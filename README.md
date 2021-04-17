@@ -28,9 +28,10 @@ type User = {
 // Groups form a hierarchy in two ways:
 // - Parent groups share their permissions with all their children
 // - Users that are part of a group with the "owner" permission of an ownerGroup can:
-//   - Add or remove the ownerGroup from all other users
-//   - Create new users as long as they do not exist
 //   - Send welcome or forgot-password emails
+//   - View all ownerGroups and their children
+//   - Create new users as long as they do not exist
+//   - Add or remove the ownerGroup or its children from all users
 
 type Group = {
   slug: string;
