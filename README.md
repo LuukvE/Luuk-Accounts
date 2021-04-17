@@ -45,7 +45,7 @@ type Email = {
 };
 
 type Configuration = {
-  slug: string; // private-key, public-key, session-max-age, minimun-password-length, allowed-origin
+  slug: string; // private-key, public-key, session-max-age, minimum-password-length, allowed-origin
   value: string;
 };
 
