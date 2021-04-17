@@ -189,8 +189,7 @@ const manualSignUp = (email: string, password: string, redirect: string, name?: 
 
 // POST /forgot-password
 const forgotPassword = (email: string, redirect: string) => null {
-  // Find thisUser, if not found return null
-  // Create a link and send an email
+  // Find thisUser, if found create a link and send an email
   // Return null
 };
 
