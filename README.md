@@ -27,7 +27,7 @@ type Session = {
   id: string;
   user: string;
   ip: string;
-  expires?: Date;
+  expired?: Date;
   created: Date;
 };
 
@@ -44,8 +44,11 @@ type Group = {
 type Trigger = {
   id: string;
   type: TriggerType; // Sign Up, Sign in
+  name: string;
+  email: string;
+  password?: string;
   redirect: string; // URL
-  active: boolean;
+  expired: Date;
   created: Date;
 };
 
@@ -73,6 +76,7 @@ type Configuration = {
 ```
 
 ## Considerations
+- Passwords are hashed before saved
 - Email addresses are case-insensitive
 - All POST requests and responses are Content-Type JSON
 - Cookies are protected against forgery using a signature cookie
@@ -89,8 +93,8 @@ const publicKey = () => Key {
 // POST /auto-sign-in
 const autoSignIn = (cookie?: string) => null | User {
   // If no cookie return null
-  // Find user session based on its id in the cookie
-  // Validate the session based on the requests that came in (IP / Timeout)
+  // Find a non-expired session, if not found return null
+  // Validate the session by checking for a different ip
   // If the session is invalid return null
   // Return user profile, permissions and JWT token
 };
@@ -105,7 +109,8 @@ const manualSignIn = (email: string, password: string) => Error | User {
 // POST /sign-up
 const manualSignUp = (email: string, password: string, redirect: string, name?: string) => void {
   // Find user, if found send forgot password email and return
-  // Create sign up trigger and send an email with a link that executes the trigger
+  // Hash the password and create the sign up trigger
+  // Send an email with a link that executes the trigger
 };
 
 // POST /forgot-password
@@ -116,9 +121,9 @@ const forgotPassword = (email: string, redirect: string) => void {
 
 // GET /trigger?id=<id>
 const trigger = (id: string) => void {
-  // Find the trigger, if not found or inactive redirect to link expired page
-  // Execute the trigger, if sign up or forgot password then also set cookie
-  // Update the trigger to active: false
+  // Find the non-expired trigger, if not found redirect to link expired page
+  // Execute the trigger and set cookie
+  // Update the trigger to expired: now()
   // Redirect to trigger redirect property
 };
 
@@ -134,7 +139,7 @@ const googleSignIn = (code: string) => Error | User {
 
 // POST /sign-out
 const signOut = (cookie?: string) => void {
-  // If session exists, update it to active: false
+  // If session exists, update it to expired: now()
   // If cookie exists, remove it
 };
 
