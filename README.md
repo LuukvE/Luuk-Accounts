@@ -21,39 +21,60 @@ A complete authentication and user management solution.
 ## Database
 ```typescript
 type User = {
-
+  id: string;
+  name: string;
+  email: string;
+  picture: string; // URL
+  google: string; // ID
+  created: Date;
 };
 
 type Session = {
-
+  id: string;
+  user: string;
+  ip: string;
+  expires?: Date;
+  created: Date;
 };
 
 type Permission = {
-
+  id: string;
+  created: Date;
 };
 
 type Group = {
-
+  id: string;
+  created: Date;
 };
 
 type Trigger = {
-
-};
-
-type Key = {
-
-};
-
-type Template = {
-
+  id: string;
+  type: TriggerType; // Sign Up, Sign in
+  redirect: string; // URL
+  active: boolean;
+  created: Date;
 };
 
 type Email = {
-
+  id: string;
+  type: EmailType; // Verify Email, Forgot Password
+  subject: string;
+  htmlBody: string;
+  plainBody: string;
 };
 
 type Log = {
+  id: string;
+  type: LogType; // User Error, System Error, Session Created, User Created, Trigger Created, Permission Created, Group Created, Email Sent
+  action: string;
+  detail: string;
+  created: Date;
+};
 
+type Configuration = {
+  id: string;
+  type: ConfigurationType; // Session Timeout, Session IP Check, Private Key, Public Key, Minimum Password Length
+  value: string;
 };
 ```
 
@@ -67,7 +88,7 @@ const publicKey = () => Key {
 // POST /auto-sign-in
 const autoSignIn = (cookie?: string) => null | User {
   // If no cookie return null
-  // Find user session object in FireStore based on its id in the cookie
+  // Find user session based on its id in the cookie
   // Validate the session based on the requests that came in (IP / Timeout)
   // If the session is invalid return null
   // Return user profile, permissions and JWT token
