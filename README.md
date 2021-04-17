@@ -133,6 +133,7 @@ type LoadResponse = {
   }[],
   groups: {
     slug: string;
+    permissions: string[];
     parent?: string; // group slug
     name: string;
     description: string;
@@ -212,11 +213,11 @@ Cookie required to send requests
 // Each endpoint first finds a non-expired session, if not found return not signed in error
 // Find thisUser related to the session, if not found return not signed in error
 // Find all permissions thisUser has
-// Find all ownerGroups that have an owner permission that is part of thisUser permissions
+// Find all ownerGroups that have an owner permission that is part of thisUser permissions and their children
 
 // POST /load
 const load = (cookie: string) => LoadResponse {
-  // Find all users part of ownerGroups
+  // Find all users part of ownerGroups or their children
   // return response
 };
 
