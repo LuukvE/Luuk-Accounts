@@ -84,20 +84,32 @@ type Configuration = {
 
 ## Endpoints
 ```typescript
+type SignInResponse = {
+  user: User,
+  permissions: Permission[],
+  groups: Group[],
+  token: string
+};
+
+type Error = {
+  type: string;
+  message: string;
+};
+
 // GET /public-key
-const publicKey = () => Key {
+const publicKey = () => Configuration {
   // Return public key used to decrypt JWT tokens
 };
 
 // POST /auto-sign-in
-const autoSignIn = (cookie?: string) => null | User {
+const autoSignIn = (cookie?: string) => null | SignInResponse {
   // If no cookie return null
   // Find a non-expired session, if not found return null
   // Return user profile, permissions and JWT token
 };
 
 // POST /sign-in
-const manualSignIn = (email: string, password: string) => Error | User {
+const manualSignIn = (email: string, password: string) => Error | SignInResponse {
   // Find the user, if not found return wrong credentials error
   // Validate password against hashed password, if invalid return wrong credentials error
   // Create a session object and return user profile, permissions and JWT token
@@ -125,7 +137,7 @@ const trigger = (id: string) => void {
 };
 
 // POST /google-sign-in
-const googleSignIn = (code: string) => Error | User {
+const googleSignIn = (code: string) => Error | SignInResponse {
   // Request an access and id tokens from Google using the code
   // Request user information from Google using the tokens
   // If either of these requests failed return authentication failed error
