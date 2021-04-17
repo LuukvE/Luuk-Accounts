@@ -25,6 +25,12 @@ type User = {
   created: Date;
 };
 
+// Groups form a hierarchy in two ways:
+// - Parent groups share their permissions with all their children
+// - Users that are part of a group with the "owner" permission of another group can:
+//   - Add or remove the groups permissions from all other users
+//   - Create new users as long as they do not exist
+//   - Send welcome emails
 type Group = {
   slug: string;
   permissions: string[];
@@ -37,8 +43,9 @@ type Group = {
 
 // All objects below are exclusively managed and visible to users with permission: root-admin
 
+// These are email templates
 type Email = {
-  slug: string; // verify-email, forgot-password
+  slug: string; // verify-email, forgot-password, welcome
   subject: string;
   html: string;
   text: string;
@@ -156,14 +163,14 @@ const googleSignIn = (code: string) => Error | SignInResponse {
   // Create a session and return SignInResponse
 };
 
+// GET /google-redirect
+const googleRedirect = () => void {
+  // Redirect the user to a Google Signin page with a 302 Found
+};
+
 // POST /sign-out
 const signOut = (cookie?: string) => void {
   // If session exists, update it to expired: now()
   // If cookie exists, remove it
-};
-
-// GET /google-redirect
-const googleRedirect = () => void {
-  // Redirect the user to a Google Signin page with a 302 Found
 };
 ```
