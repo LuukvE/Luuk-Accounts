@@ -26,7 +26,6 @@ type User = {
 type Session = {
   id: string;
   user: string;
-  ip: string;
   expired?: Date;
   created: Date;
 };
@@ -70,7 +69,7 @@ type Log = {
 
 type Configuration = {
   id: string;
-  type: ConfigurationType; // Session Timeout, Session IP Check, Private Key, Public Key, Minimum Password Length
+  type: ConfigurationType; // Session Max Age, Private Key, Public Key, Minimum Password Length
   value: string;
 };
 ```
@@ -94,8 +93,6 @@ const publicKey = () => Key {
 const autoSignIn = (cookie?: string) => null | User {
   // If no cookie return null
   // Find a non-expired session, if not found return null
-  // Validate the session by checking for a different ip
-  // If the session is invalid return null
   // Return user profile, permissions and JWT token
 };
 
