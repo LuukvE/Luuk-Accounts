@@ -100,16 +100,6 @@ type Configuration = {
 };
 ```
 
-## Considerations
-
-- All redirects use status 302 Found
-- Passwords are hashed before saved
-- Email addresses are case-insensitive
-- All POST requests and responses are Content-Type JSON
-- Cookies are protected against forgery using a signature cookie
-- Requests from an allowed origin return CORS headers with that origin
-- Function arguments can come from a cookie, the request body or the request parameters
-
 ## Response Types
 
 ```typescript
@@ -193,6 +183,16 @@ export type RequestBody = null | {
 };
 ```
 
+## Considerations
+
+- All redirects use status 302 Found
+- Passwords are hashed before saved
+- Email addresses are case-insensitive
+- All POST requests and responses are Content-Type JSON
+- Cookies are protected against forgery using a signature cookie
+- Requests from an allowed origin return CORS headers with that origin
+- Function arguments can come from a cookie, the request body or the request parameters
+
 ## Public Endpoints
 
 No cookie required to send requests
@@ -237,16 +237,6 @@ const autoSignIn = (cookies: Cookies): null | SignInResponse => {
   // Return response
 };
 
-// POST /sign-in
-const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {
-  // Find thisUser, if not found return wrong credentials error
-  // Validate password against hashed password, if invalid return wrong credentials error
-  // Create a session object
-  // Find all thisUser groups and their children
-  // Create JWT token
-  // Return response
-};
-
 // POST /sign-up
 const manualSignUp = (
   email: string,
@@ -283,6 +273,15 @@ Cookie required to send requests
 // Find thisUser related to the session, if not found return not signed in error
 // Find all permissions thisUser has by collecting all permissions from users groups and their children
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
+
+// POST /sign-in
+const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {
+  // Validate password against hashed password of thisUser, if invalid return wrong credentials error
+  // Create a session object
+  // Find all thisUser groups and their children
+  // Create JWT token
+  // Return response
+};
 
 // POST /load
 const load = (cookies: Cookies): LoadResponse => {
