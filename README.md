@@ -14,13 +14,40 @@ A complete authentication and user management solution.
 
 ## Database
 ```typescript
+// 
 type User = {
   id: string;
-  name: string;
   email: string;
-  picture: string; // URL
+  password: string;
   google?: number;
+  groups: string[];
+  name: string;
+  picture: string;
   created: Date;
+};
+
+type Group = {
+  slug: string;
+  permissions: string[];
+  owner: string; // refers to a group
+  parent?: string; // refers to a group
+  name: string;
+  description: string;
+  created: Date;
+};
+
+// All objects below are exclusively managed and visible to users with permission: root-admin
+
+type Email = {
+  slug: string; // verify-email, forgot-password
+  subject: string;
+  html: string;
+  text: string;
+};
+
+type Configuration = {
+  slug: string; // private-key, public-key, session-max-age, minimun-password-length, allowed-origin
+  value: string;
 };
 
 type Session = {
@@ -30,47 +57,27 @@ type Session = {
   created: Date;
 };
 
-type Permission = {
-  id: string;
-  created: Date;
-};
-
-type Group = {
-  id: string;
-  created: Date;
-};
-
 type Trigger = {
   id: string;
-  type: TriggerType; // Sign Up, Sign in
+  type: string; // sign-up, sign-in
   name: string;
   email: string;
   password?: string;
-  redirect: string; // URL
+  redirect: string;
   expired: Date;
   created: Date;
 };
 
-type Email = {
-  id: string;
-  type: EmailType; // Verify Email, Forgot Password
-  subject: string;
-  htmlBody: string;
-  plainBody: string;
-};
-
 type Log = {
   id: string;
-  type: LogType; // User Error, System Error, Session Created, User Created, Permission Created, Group Created, Email Sent
+  user?: string;
+  group?: string;
+  session?: string;
+  trigger?: string;
+  type: string; // system-error, user-error, user-created, user-updated, session-created, user-signed-in, email-sent
   action: string;
   detail: string;
   created: Date;
-};
-
-type Configuration = {
-  id: string;
-  type: ConfigurationType; // Session Max Age, Private Key, Public Key, Minimum Password Length
-  value: string;
 };
 ```
 
@@ -86,12 +93,13 @@ type Configuration = {
 ```typescript
 type SignInResponse = {
   user: User,
-  permissions: Permission[],
   groups: Group[],
+  session: Session,
   token: string
 };
 
 type Error = {
+  code: number;
   type: string;
   message: string;
 };
@@ -105,14 +113,14 @@ const publicKey = () => Configuration {
 const autoSignIn = (cookie?: string) => null | SignInResponse {
   // If no cookie return null
   // Find a non-expired session, if not found return null
-  // Return user profile, permissions and JWT token
+  // Return SignInResponse
 };
 
 // POST /sign-in
 const manualSignIn = (email: string, password: string) => Error | SignInResponse {
   // Find the user, if not found return wrong credentials error
   // Validate password against hashed password, if invalid return wrong credentials error
-  // Create a session object and return user profile, permissions and JWT token
+  // Create a session object and return SignInResponse
 };
 
 // POST /sign-up
@@ -143,7 +151,7 @@ const googleSignIn = (code: string) => Error | SignInResponse {
   // If either of these requests failed return authentication failed error
   // If the user does not exist, create the user account
   // Update the user account with Google id, email, name and picture
-  // Create a session and return user profile, permissions and JWT token
+  // Create a session and return SignInResponse
 };
 
 // POST /sign-out
