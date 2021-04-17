@@ -27,11 +27,11 @@ type User = {
 
 // Groups form a hierarchy in two ways:
 // - Parent groups share their permissions with all their children
-// - Users that are part of a group with the "owner" permission of an ownerGroup can:
+// - Users that are part of a group with the "owner" permission another group (ownedGroup) can:
 //   - Send welcome or forgot-password emails
-//   - View all ownerGroups and their children
+//   - View all ownedGroups and their children
 //   - Create new users as long as they do not exist
-//   - Add or remove the ownerGroup or its children from all users
+//   - Add or remove the ownedGroup or its children from all users
 
 type Group = {
   slug: string;
@@ -214,23 +214,23 @@ Cookie required to send requests
 // Each endpoint first finds a non-expired session, if not found return not signed in error
 // Find thisUser related to the session, if not found return not signed in error
 // Find all permissions thisUser has
-// Find all ownerGroups that have an owner permission that is part of thisUser permissions and their children
+// Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
 
 // POST /load
 const load = (cookie: string) => LoadResponse {
-  // Find all users part of ownerGroups or their children
+  // Find all users part of ownedGroups or their children
   // return response
 };
 
 // POST /set-user
 const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string, groups?: string[], name?: string, password?: string) => Error | null {
-  // If no ownerGroups were found or any payloadGroups are not part of ownerGroups, return not authorized error
+  // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
   // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
   // If no payloadId or payloadEmail provided, return invalid request error
-  // Find the setUser using payloadId or payloadEmail, if not found create it with email, name and password
-  // Remove all ownerGroups that are not found in payloadGroups from setUser
-  // Add all payloadGroups to setUser groups
-  // If sendEmail is defined, create sign-in trigger and send email to setUser
+  // Find the targetUser using payloadId or payloadEmail, if not found create it with email, name and password
+  // Remove all ownedGroups that are not found in payloadGroups from targetUser
+  // Add all payloadGroups to targetUser groups
+  // If sendEmail is defined, create sign-in trigger and send email to targetUser
   // return null
 };
 ```
