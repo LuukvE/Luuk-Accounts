@@ -2,15 +2,15 @@
 A complete authentication and user management solution.
 
 ## Functionality
-- Users can sign up and sign in manually or with Google
-- Users can manage other users, through groups and permissions
-- The system can send email verification and forgot password emails
+- [x] Users can sign up and sign in manually or with Google
+- [x] Users can manage other users, through groups and permissions
+- [x] The system can send email verification and forgot password emails
 
 ## APIs
-- [x] **Google OAuth 2.0:** Enables Google Sign-in
-- [x] **Google Cloud Functions:** Hosts the TypeScript API
-- [x] **Google Cloud FireStore:** Hosts the database
-- [x] **Google Mail:** Enables automated e-mails
+- **Google OAuth 2.0:** Enables Google Sign-in
+- **Google Cloud Functions:** Hosts the TypeScript API
+- **Google Cloud FireStore:** Hosts the database
+- **Google Mail:** Enables automated e-mails
 
 ## Database
 ```typescript
