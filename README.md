@@ -1,5 +1,10 @@
 # Auth
-Allow users to sign up and sign in manually or with Google.
+A complete authentication and user management solution.
+
+## Functionality
+- Users can sign up and sign in manually or with Google
+- Users can manage other users, through groups and permissions
+- The system can send email verification and forgot password emails
 
 ## APIs
 - [x] **Google OAuth 2.0:** Enables Google Sign-in
