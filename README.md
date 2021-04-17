@@ -100,6 +100,7 @@ type Log = {
 type SignInResponse = {
   id: string;
   email: string;
+  password: boolean;
   name: string;
   picture: string;
   permissions: string;
