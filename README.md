@@ -43,19 +43,6 @@ type Group = {
 
 // All objects below are exclusively managed and visible to users with permission: root-admin
 
-// These are email templates
-type Email = {
-  slug: string; // verify-email, forgot-password, welcome
-  subject: string;
-  html: string;
-  text: string;
-};
-
-type Configuration = {
-  slug: string; // private-key, public-key, session-max-age, minimum-password-length, allowed-origin
-  value: string;
-};
-
 type Session = {
   id: string;
   user: string;
@@ -84,6 +71,19 @@ type Log = {
   action: string;
   detail: string;
   created: Date;
+};
+
+// These are email templates
+type Email = {
+  slug: string; // verify-email, forgot-password, welcome
+  subject: string;
+  html: string;
+  text: string;
+};
+
+type Configuration = {
+  slug: string; // private-key, public-key, session-max-age, minimum-password-length, allowed-origin
+  value: string;
 };
 ```
 
