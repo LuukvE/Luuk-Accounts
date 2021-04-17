@@ -125,6 +125,16 @@ type SignInResponse = {
 };
 
 type LoadResponse = {
+  // All ownedGroups and their children
+  groups: {
+    slug: string;
+    permissions: string[];
+    parent?: string; // group slug
+    name: string;
+    description: string;
+    created: Date;
+  }[],
+  // All users part of ownedGroups and their children
   users: {
     id: string;
     name: string;
@@ -134,18 +144,13 @@ type LoadResponse = {
     picture: string;
     groups: string[];
   }[],
-  groups: {
-    slug: string;
-    permissions: string[];
-    parent?: string; // group slug
-    name: string;
-    description: string;
-    created: Date;
-  }[],
-  permissions?: {
-    slug: string;
-    description: string;
-  }[];
+  // All properties below are only loaded with root-admin permission
+  permissions?: Permission[],
+  sessions?: Session[],
+  links?: Link[],
+  logs?: Log[],
+  emails?: Email[],
+  configurations?: Configuration[]
 };
 ```
 
@@ -249,4 +254,10 @@ const setUser = (cookie: string, id?: string, email?: string, sendEmail?: string
   // If sendEmail is defined, create a link and send email to targetUser
   // Return load(cookie)
 };
+
+// POST /set-config
+const setConfig = (cookie: string, permissions: Permission[], sessions: Session[], links: Link[], logs: Log[], emails: Email[], configurations?: Configuration[]) => LoadResponse {
+  // For each object type remove all objects not in the list and add or update all others
+  // Return load(cookie)
+}
 ```
