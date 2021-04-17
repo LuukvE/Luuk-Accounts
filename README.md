@@ -9,14 +9,8 @@ A complete authentication and user management solution.
 ## APIs
 - [x] **Google OAuth 2.0:** Enables Google Sign-in
 - [x] **Google Cloud Functions:** Hosts the TypeScript API
-- [x] **Google Cloud FireStore:** Provides the database
-
-## Considerations
-- Email addresses are case-insensitive
-- All POST requests and responses are Content-Type JSON
-- Cookies are protected against forgery using a signature cookie
-- Requests from an allowed origin return CORS headers with that origin
-- Function arguments can come from a cookie, the request body or the request parameters
+- [x] **Google Cloud FireStore:** Hosts the database
+- [x] **Google Mail:** Enables automated e-mails
 
 ## Database
 ```typescript
@@ -77,6 +71,13 @@ type Configuration = {
   value: string;
 };
 ```
+
+## Considerations
+- Email addresses are case-insensitive
+- All POST requests and responses are Content-Type JSON
+- Cookies are protected against forgery using a signature cookie
+- Requests from an allowed origin return CORS headers with that origin
+- Function arguments can come from a cookie, the request body or the request parameters
 
 ## Endpoints
 ```typescript
