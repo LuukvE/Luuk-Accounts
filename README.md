@@ -10,7 +10,7 @@ Allow users to sign up and sign in manually or with Google.
 - Email addresses are case-insensitive
 - All POST requests and responses are Content-Type JSON
 - Cookies are protected against forgery using a signature cookie
-- Requests from an allowed origin should return CORS headers with that origin
+- Requests from an allowed origin return CORS headers with that origin
 - Function arguments can come from a cookie, the request body or the request parameters
 
 ## Database
@@ -39,7 +39,7 @@ type Key = {
 
 };
 
-type Templates = {
+type Template = {
 
 };
 
