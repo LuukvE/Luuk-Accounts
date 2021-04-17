@@ -27,10 +27,11 @@ type User = {
 
 // Groups form a hierarchy in two ways:
 // - Parent groups share their permissions with all their children
-// - Users that are part of a group with the "owner" permission of another group can:
-//   - Add or remove the group slug from all other users
+// - Users that are part of a group with the "owner" permission of an ownerGroup can:
+//   - Add or remove the ownerGroup from all other users
 //   - Create new users as long as they do not exist
 //   - Send welcome or forgot-password emails
+
 type Group = {
   slug: string;
   permissions: string[];
@@ -71,6 +72,12 @@ type Log = {
   action: string;
   detail: string;
   created: Date;
+};
+
+// These are all the permissions that can be assigned to groups
+type Permission = {
+  slug: string;
+  description: string;
 };
 
 // These are email templates
@@ -134,11 +141,9 @@ type LoadResponse = {
 };
 ```
 
-## Endpoints
+## Public Endpoints
+No cookie required to send requests
 ```typescript
-
-// Public Endpoints: No cookie required to send requests
-
 // GET /public-key
 const publicKey = () => Configuration {
   // Return public key used to decrypt JWT tokens
@@ -199,8 +204,11 @@ const signOut = (cookie: string) => void {
   // If session exists, update it to expired: now()
   // If cookie is not empty, remove it
 };
+```
 
-// Protected Endpoints: Cookie required to send requests
+## Protected Endpoints
+Cookie required to send requests
+```typescript
 // Each endpoint first finds a non-expired session, if not found return not signed in error
 // Find thisUser related to the session, if not found return not signed in error
 // Find all permissions thisUser has
