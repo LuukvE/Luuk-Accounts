@@ -16,7 +16,7 @@ import {
   LoadResponse
 } from './types';
 
-const getUserAndOwnedGroups = (cookies: Cookies): [SignInResponse, Group[]] => {
+const getUserAndOwnedGroups = async (cookies: Cookies): Promise<[SignInResponse, Group[]]> => {
   // Each authenticated endpoint first finds a non-expired session, if not found return not signed in error
   // Find thisUser related to the session, if not found return not signed in error
   // Find all permissions thisUser has by collecting all permissions from users groups and their children
@@ -24,26 +24,20 @@ const getUserAndOwnedGroups = (cookies: Cookies): [SignInResponse, Group[]] => {
   return null as any;
 };
 
-export const missingFields = (): ErrorResponse => ({
-  type: 'error',
-  status: 400,
-  message: 'missing-fields'
-});
-
 // GET /public-key
-export const publicKey = (): KeyResponse => {
+export const publicKey = async (): Promise<KeyResponse> => {
   // Return public key used to decrypt JWT tokens
   return null as any;
 };
 
-// GET /google-redirect
-export const googleRedirect = (redirect: string): RedirectResponse => {
+// GET /google-redirect?redirect=<URL>
+export const googleRedirect = async (redirect: string): Promise<RedirectResponse> => {
   // Redirect to a Google Signin page
   return null as any;
 };
 
 // GET /sign-in-link?id=<id>
-export const signInLink = (id: string): RedirectResponse => {
+export const signInLink = async (id: string): Promise<RedirectResponse> => {
   // Find the non-expired link, if not found redirect to link expired page
   // Find thisUser, if not found create it
   // Create session and set cookie
@@ -53,7 +47,11 @@ export const signInLink = (id: string): RedirectResponse => {
 };
 
 // GET /google-sign-in
-export const googleSignIn = (code: string, redirect: string): RedirectResponse => {
+export const googleSignIn = async (
+  cookies: Cookies,
+  code: string,
+  redirect: string
+): Promise<RedirectResponse> => {
   // Request an access and id tokens from Google using the code
   // Request thisUser information from Google using the tokens
   // If either of these requests failed redirect with error in parameter
@@ -65,7 +63,7 @@ export const googleSignIn = (code: string, redirect: string): RedirectResponse =
 };
 
 // POST /auto-sign-in
-export const autoSignIn = (cookies: Cookies): null | SignInResponse => {
+export const autoSignIn = async (cookies: Cookies): Promise<null | SignInResponse> => {
   // If cookie is empty return null
   // Find a non-expired session, if not found return null
   // Find thisUser, all its groups and their children
@@ -75,7 +73,10 @@ export const autoSignIn = (cookies: Cookies): null | SignInResponse => {
 };
 
 // POST /sign-in
-export const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {
+export const manualSignIn = async (
+  email: string,
+  password: string
+): Promise<ErrorResponse | SignInResponse> => {
   // Find thisUser, if not found return wrong credentials error
   // Validate password against hashed password, if invalid return wrong credentials error
   // Create a session object
@@ -86,12 +87,12 @@ export const manualSignIn = (email: string, password: string): ErrorResponse | S
 };
 
 // POST /sign-up
-export const manualSignUp = (
+export const manualSignUp = async (
   email: string,
   password: string,
   redirect: string,
   name?: string
-): ErrorResponse | null => {
+): Promise<ErrorResponse | null> => {
   // Find user, if found send forgot password email and return null
   // If password too short return password insecure error
   // Hash the password and create a link
@@ -100,14 +101,14 @@ export const manualSignUp = (
 };
 
 // POST /forgot-password
-export const forgotPassword = (email: string, redirect: string): null => {
+export const forgotPassword = async (email: string, redirect: string): Promise<null> => {
   // Find thisUser, if found create a link and send an email
   // Return null
   return null as any;
 };
 
 // POST /sign-out
-export const signOut = (cookies: Cookies): null => {
+export const signOut = async (cookies: Cookies): Promise<null> => {
   // If session exists, update it to expired: now()
   // If cookie is not empty, remove it
   // Return null
@@ -115,7 +116,7 @@ export const signOut = (cookies: Cookies): null => {
 };
 
 // POST /load
-export const load = (cookies: Cookies): LoadResponse => {
+export const load = async (cookies: Cookies): Promise<LoadResponse> => {
   // Find all users part of ownedGroups or their children
   // If thisUser permissions don't include root-admin, return response
   // Find all non-expired objects that are not users or groups
@@ -124,7 +125,7 @@ export const load = (cookies: Cookies): LoadResponse => {
 };
 
 // POST /set-user
-export const setUser = (
+export const setUser = async (
   cookies: Cookies,
   id?: string,
   email?: string,
@@ -132,7 +133,7 @@ export const setUser = (
   groups?: string[],
   name?: string,
   password?: string
-): ErrorResponse | LoadResponse => {
+): Promise<ErrorResponse | LoadResponse> => {
   // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
   // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
   // If no payloadId or payloadEmail provided, return invalid request error
@@ -145,7 +146,7 @@ export const setUser = (
 };
 
 // POST /set-config
-export const setConfig = (
+export const setConfig = async (
   cookies: Cookies,
   permissions: Permission[],
   sessions: Session[],
@@ -153,7 +154,7 @@ export const setConfig = (
   logs: Log[],
   emails: Email[],
   configurations: Configuration[]
-): LoadResponse => {
+): Promise<LoadResponse> => {
   // For each object type remove all non-expired objects not in the list and add or update all others
   // Return load(cookie)
   return null as any;

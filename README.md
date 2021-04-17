@@ -173,6 +173,26 @@ type LoadResponse = {
 };
 ```
 
+## Request Body
+
+```typescript
+export type RequestBody = null | {
+  email?: string;
+  password?: string;
+  redirect?: string;
+  name?: string;
+  id?: string;
+  sendEmail?: string;
+  groups?: string[];
+  permissions?: Permission[];
+  sessions?: Session[];
+  links?: Link[];
+  logs?: Log[];
+  emails: Email[];
+  configurations: Configuration[];
+};
+```
+
 ## Public Endpoints
 
 No cookie required to send requests
