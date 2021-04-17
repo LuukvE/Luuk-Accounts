@@ -14,7 +14,6 @@ A complete authentication and user management solution.
 
 ## Database
 ```typescript
-// 
 type User = {
   id: string;
   email: string;
@@ -29,8 +28,8 @@ type User = {
 type Group = {
   slug: string;
   permissions: string[];
-  owner: string; // refers to a group
-  parent?: string; // refers to a group
+  owner: string; // permission slug
+  parent?: string; // group slug
   name: string;
   description: string;
   created: Date;
