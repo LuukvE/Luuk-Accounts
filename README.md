@@ -42,10 +42,17 @@ const manualSignUp = (email: string, password: string, redirect: string, name?: 
   // Create sign up trigger and send an email with a link that executes the trigger
 };
 
+// POST /forgot-password
+const forgotPassword = (email: string, redirect: string) => void {
+  // Find user, if not found return
+  // Create a forgot password trigger and send an email with a link that executes the trigger
+};
+
 // GET /trigger?id=<id>
 const trigger = (id: string) => void {
-  // Find the trigger, if not found redirect to link expired page
+  // Find the trigger, if not found or inactive redirect to link expired page
   // Execute the trigger, if sign up or forgot password then also set cookie
+  // Update the trigger to active: false
   // Redirect to trigger redirect property
 };
 
