@@ -67,4 +67,26 @@ body {
   > main {
     padding: 16px;
   }
+
+  .account-settings {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    h2 {
+      margin-bottom: 20px;
+    }
+    input {
+      margin-bottom: 10px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .spinner-border {
+        height: 24px;
+        width: 24px;
+        font-size: 10px;
+      }
+    }
+  }
 }

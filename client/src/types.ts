@@ -1,5 +1,9 @@
 export type State = {
-  error: string;
+  error: null | {
+    type: string;
+    status: number;
+    message: string;
+  };
   user: null | {
     name: string;
     email: string;

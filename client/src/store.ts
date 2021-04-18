@@ -4,7 +4,7 @@ import { configureStore, getDefaultMiddleware, createSlice } from '@reduxjs/tool
 import { State } from './types';
 
 const initialState: State = {
-  error: '',
+  error: null,
   user: null
 };
 

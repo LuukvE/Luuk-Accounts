@@ -6,10 +6,12 @@ const apiURL = process.env.REACT_APP_API_URL;
 
 const useAuth = () => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const request = useCallback(
     async (url: string, body?: any) => {
+      setLoading(true);
+
       try {
         const res = await fetch(`${apiURL}${url}`, {
           method: 'POST',
@@ -25,13 +27,22 @@ const useAuth = () => {
 
         setLoading(false);
 
+        if (res.status >= 300) {
+          dispatch(
+            actions.set({
+              error: response
+            })
+          );
+
+          return { error: response };
+        }
+
         dispatch(
           actions.set({
-            user: response
+            user: response,
+            error: null
           })
         );
-
-        if (res.status >= 300) return { error: response };
 
         return { response: response };
       } catch (error) {

@@ -125,11 +125,11 @@ export const googleSignIn = async (
 
   const user = await saveUser({
     created: new Date(),
-    ...foundUser,
     email: googleUser.email,
     name: googleUser.name,
+    google: googleUser.id,
     picture: googleUser.picture || '',
-    google: googleUser.id || ''
+    ...foundUser
   });
 
   const sessions = await findSessions({ user: user.email, expired: null });
@@ -221,7 +221,21 @@ export const manualSignIn = async (
     expires: new Date(2050, 1, 1)
   });
 
-  return autoSignIn(cookies);
+  // Find all permissions thisUser has by collecting all permissions from users groups and their children
+
+  // Create JWT token
+
+  return {
+    type: 'sign-in',
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    picture: user.picture,
+    password: !!user.password,
+    google: !!user.google,
+    token: '',
+    permissions: []
+  };
 };
 
 // POST /sign-up
@@ -325,7 +339,8 @@ export const setMe = async (
 
   return {
     ...signin,
-    name: update.name
+    name: update.name,
+    password: !!update.password
   };
 };
 

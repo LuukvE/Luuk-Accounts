@@ -13,13 +13,13 @@ export const cookieOptions: SetOption = {
 
 export const notSignedIn: ErrorResponse = {
   type: 'error',
-  status: 403,
+  status: 401,
   message: 'not-signed-in'
 };
 
 export const wrongCredentials: ErrorResponse = {
   type: 'error',
-  status: 400,
+  status: 401,
   message: 'wrong-credentials'
 };
 

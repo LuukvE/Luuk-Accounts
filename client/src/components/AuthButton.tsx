@@ -1,6 +1,15 @@
 import './AuthButton.scss';
-import React, { FC, useEffect, useState, useLayoutEffect, useRef } from 'react';
+import React, {
+  FC,
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  FormEvent
+} from 'react';
 import Form from 'react-bootstrap/Form';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { ReactSVG } from 'react-svg';
@@ -11,7 +20,8 @@ import { useSelector } from '../store';
 const AuthButton: FC = () => {
   const { request, loading } = useAuth();
   const preventAutoHide = useRef(false);
-  const user = useSelector((state) => state.user);
+  const { user, error } = useSelector((state) => state);
+  const [initializing, setInitializing] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [showSignInMenu, setShowSignInMenu] = useState(false);
   const [showSignOutMenu, setShowSignOutMenu] = useState(false);
@@ -39,13 +49,33 @@ const AuthButton: FC = () => {
 
   useEffect(() => {
     request('/auto-sign-in').then(({ response, error }) => {
-      console.log(response, error);
+      setInitializing(false);
     });
   }, [request]);
 
+  const signIn = useCallback(
+    (e: FormEvent) => {
+      e.preventDefault();
+
+      request('/sign-in', {
+        email,
+        password
+      }).then(({ response }) => {
+        if (!response) return;
+
+        setShowSignInMenu(false);
+
+        setPassword('');
+
+        setEmail('');
+      });
+    },
+    [request, email, password]
+  );
+
   return (
     <div className="AuthButton">
-      {!loading && !user && (
+      {!initializing && !user && (
         <Button
           onClick={() => {
             preventAutoHide.current = true;
@@ -68,9 +98,11 @@ const AuthButton: FC = () => {
           }}
         >
           <span>
-            {loading && <Spinner animation="border" />}
-            {!loading && user.picture && <img src={user.picture} alt="" />}
-            {!loading && (user.name || user.email).trim().substring(0, 1).toUpperCase()}
+            {initializing && <Spinner animation="border" />}
+            {!initializing && user.picture && <img src={user.picture} alt="" />}
+            {!initializing &&
+              (user.name || user.email) &&
+              (user.name || user.email).trim().substring(0, 1).toUpperCase()}
           </span>
         </Button>
       )}
@@ -86,7 +118,9 @@ const AuthButton: FC = () => {
           {user.name && <span>{user.email}</span>}
           <Button
             onClick={() => {
-              request('/sign-out');
+              request('/sign-out').then(() => {
+                setShowSignOutMenu(false);
+              });
             }}
             variant="light"
           >
@@ -101,11 +135,7 @@ const AuthButton: FC = () => {
           }}
           className={`auth-menu${showSignInMenu ? ' active' : ''}`}
         >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
+          <form onSubmit={signIn}>
             <a
               className="btn btn-light"
               href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
@@ -139,7 +169,9 @@ const AuthButton: FC = () => {
               />
             )}
             <Button block type="submit">
-              {forgotPassword ? (
+              {loading ? (
+                <Spinner animation="border" />
+              ) : forgotPassword ? (
                 <span>
                   Mail sign-in link <i className="fas fa-paper-plane" />
                 </span>
@@ -147,6 +179,13 @@ const AuthButton: FC = () => {
                 'Sign in'
               )}
             </Button>
+            {error && (
+              <Badge variant="danger">
+                {error.message === 'wrong-credentials'
+                  ? 'E-mail or password are incorrect'
+                  : error.message}
+              </Badge>
+            )}
             <small
               className="btn-forgot-password"
               onClick={() => {

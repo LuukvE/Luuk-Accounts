@@ -111,7 +111,14 @@
       }
       .btn {
         margin: 0;
+        display: flex;
+        align-items: center;
         justify-content: center;
+        .spinner-border {
+          height: 20px;
+          width: 20px;
+          font-size: 10px;
+        }
         &.btn-primary {
           background: $green;
           color: white;
@@ -124,6 +131,11 @@
         > span {
           font-weight: 600;
         }
+      }
+      .badge {
+        margin-top: 8px;
+        background: $red;
+        line-height: 1.5;
       }
       small {
         color: #888;
