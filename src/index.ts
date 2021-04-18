@@ -12,9 +12,11 @@ dotenv.config({
 });
 
 const httpHandler: RequestListener = async function httpHandler(request, response) {
-  if (['/auto-sign-in', '/sign-out'].includes(request.url)) {
-    response.setHeader('Content-Type', 'application/json');
+  const { url, headers } = request;
 
+  response.setHeader('Content-Type', 'application/json');
+
+  if (['/auto-sign-in', '/sign-out'].includes(url)) {
     response.setHeader('Access-Control-Allow-Credentials', 'true');
 
     response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
@@ -22,7 +24,9 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
     response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  } else if (request.headers.origin && request.headers.origin !== process.env.API_URL) {
+  }
+
+  if (headers.origin && ![process.env.API_URL, process.env.CLIENT_URL].includes(headers.origin)) {
     response.writeHead(403);
 
     return response.end();
