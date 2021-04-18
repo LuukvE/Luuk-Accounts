@@ -14,8 +14,8 @@
 
     &.account-btn {
       border-radius: 50%;
-      height: 42px;
-      width: 42px;
+      height: 44px;
+      width: 44px;
       border: 3px solid transparent;
       background: transparent;
       padding: 1px;
@@ -67,15 +67,15 @@
   .auth-menu {
     position: absolute;
     top: calc(100% + 20px);
-    right: 4px;
+    right: 0;
     background: #fff;
     border: 1px solid #ccc;
     border-color: rgba(black, 0.2);
     color: #000;
     box-shadow: 0 2px 10px rgba(black, 0.2);
-    width: 250px;
+    width: 300px;
     border-radius: 4px;
-    padding: 20px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -83,6 +83,60 @@
     opacity: 0;
     pointer-events: none;
     transition: all 60ms;
+
+    form {
+      text-align: center;
+      width: 100%;
+      input {
+        background: #fcfcfc;
+        background: #fcfcfc;
+        border-color: #ddd;
+        box-shadow: none;
+        &:focus {
+          background: #f8f8f8;
+        }
+        &:first-of-type {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+          border-bottom: 0;
+        }
+        &:last-of-type {
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+        }
+        &.forgotten-email {
+          border-radius: 0.25rem;
+          border: 1px solid #ddd;
+        }
+      }
+      .btn {
+        margin: 0;
+        justify-content: center;
+        &.btn-primary {
+          background: $green;
+          color: white;
+          margin-top: 3px;
+          &:hover {
+            background: lighten($green, 2);
+          }
+        }
+
+        > span {
+          font-weight: 600;
+        }
+      }
+      small {
+        color: #888;
+        display: block;
+        margin: 10px 0;
+        &.btn-forgot-password {
+          cursor: pointer;
+          &:hover {
+            color: #666;
+          }
+        }
+      }
+    }
 
     &.active {
       opacity: 1;

@@ -11,6 +11,12 @@ export const cookieOptions: SetOption = {
   httpOnly: true
 };
 
+export const notSignedIn: ErrorResponse = {
+  type: 'error',
+  status: 403,
+  message: 'not-signed-in'
+};
+
 export const wrongCredentials: ErrorResponse = {
   type: 'error',
   status: 400,

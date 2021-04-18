@@ -17,7 +17,8 @@ import {
   signOut,
   load,
   setUser,
-  setObject
+  setObject,
+  setMe
 } from './handlers';
 
 const root = async (request: IncomingMessage, response: ServerResponse, body: RequestBody) => {
@@ -141,6 +142,16 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
   if (url === '/sign-out') return signOut(cookies);
 
   if (url === '/load') return load(cookies);
+
+  if (url === '/set-me') {
+    const { name, password } = body;
+
+    if ((name && typeof name !== 'string') || (password && typeof password !== 'string')) {
+      return missingFields;
+    }
+
+    return setMe(cookies, name, password);
+  }
 
   if (url === '/set-user') {
     const { id, email, sendEmail, groups, name, password } = body;

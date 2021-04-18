@@ -284,11 +284,21 @@ const manualSignIn = (
 };
 
 // POST /load
-const load = (cookies: Cookies): LoadResponse => {
+const load = (cookies: Cookies): ErrorResponse | LoadResponse => {
   // Find all users part of ownedGroups or their children
   // If thisUser permissions don't include root-admin, return response
   // Find all non-expired objects that are not users or groups
-  // return response
+  // Return response
+};
+
+// POST /set-me
+const setMe = (
+  cookies: Cookies,
+  name?: string,
+  password?: string
+): ErrorResponse | SignInResponse => {
+  // Update thisUser
+  // Return response
 };
 
 // POST /set-user

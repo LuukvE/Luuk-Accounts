@@ -30,7 +30,13 @@ import {
   LoadResponse
 } from './types';
 
-import { cookieName, cookieOptions, wrongCredentials, passwordInsecure } from './constants';
+import {
+  cookieName,
+  cookieOptions,
+  wrongCredentials,
+  passwordInsecure,
+  notSignedIn
+} from './constants';
 
 // GET /public-key
 export const publicKey = async (): Promise<KeyResponse> => {
@@ -271,8 +277,10 @@ const getOwnedGroups = async (permissions: string[]): Promise<Group[]> => {
 };
 
 // POST /load
-export const load = async (cookies: Cookies): Promise<LoadResponse> => {
+export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadResponse> => {
   const signin = await autoSignIn(cookies);
+
+  if (!signin) return notSignedIn;
 
   const ownedGroups = await getOwnedGroups(signin.permissions);
 
@@ -295,6 +303,32 @@ export const load = async (cookies: Cookies): Promise<LoadResponse> => {
   };
 };
 
+// POST /set-me
+export const setMe = async (
+  cookies: Cookies,
+  name?: string,
+  password?: string
+): Promise<ErrorResponse | SignInResponse> => {
+  const signin = await autoSignIn(cookies);
+
+  if (!signin) return notSignedIn;
+
+  const hash = password ? crypto.createHash('sha256').update(password).digest('hex') : null;
+
+  const user = await getUser(signin.email);
+
+  const update = await saveUser({
+    ...user,
+    name: name ? name : user.name,
+    password: hash ? hash : user.password
+  });
+
+  return {
+    ...signin,
+    name: update.name
+  };
+};
+
 // POST /set-user
 export const setUser = async (
   cookies: Cookies,
@@ -305,6 +339,10 @@ export const setUser = async (
   name?: string,
   password?: string
 ): Promise<ErrorResponse | LoadResponse> => {
+  const signin = await autoSignIn(cookies);
+
+  if (!signin) return notSignedIn;
+
   // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
   // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
   // If no payloadId or payloadEmail provided, return invalid request error
@@ -312,8 +350,8 @@ export const setUser = async (
   // Remove all ownedGroups that are not found in payloadGroups from targetUser
   // Add all payloadGroups to targetUser groups
   // If sendEmail is defined, create a link and send email to targetUser
-  // Return load(cookie)
-  return null as any;
+
+  return load(cookies);
 };
 
 // POST /set-object
@@ -322,7 +360,11 @@ export const setObject = async (
   collection: string,
   object: User | Group | Session | Permission | Link | Log | Email | Configuration,
   remove?: boolean
-): Promise<LoadResponse> => {
+): Promise<ErrorResponse | LoadResponse> => {
+  const signin = await autoSignIn(cookies);
+
+  if (!signin) return notSignedIn;
+
   // For each object type remove all non-expired objects not in the list and add or update all others
   console.log('updating', collection, object, 'remove?', remove);
 
