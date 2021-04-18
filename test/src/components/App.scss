@@ -9,10 +9,9 @@
 
 html,
 body {
-  color: $white;
-  background: $dark;
   font-family: 'Open Sans';
   font-weight: 600;
+  background: white;
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -48,5 +47,24 @@ body {
     &:focus {
       box-shadow: none;
     }
+  }
+
+  > header {
+    height: 64px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #bdc1c6;
+
+    h1 {
+      font-weight: 700;
+      font-size: 22px;
+      color: $green;
+      margin-right: auto;
+    }
+  }
+
+  > main {
+    padding: 16px;
   }
 }

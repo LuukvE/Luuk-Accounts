@@ -1,39 +1,24 @@
 import './App.scss';
 import '@fortawesome/fontawesome-free/js/all';
 import 'react-app-polyfill/ie11';
-import React, { FC, useEffect } from 'react';
-import useAuth from '../hooks/useAuth';
-import Button from 'react-bootstrap/Button';
+import React, { FC } from 'react';
+
+import { useSelector } from '../store';
+
+import AuthButton from './AuthButton';
 
 const App: FC = () => {
-  const { request } = useAuth();
-
-  useEffect(() => {
-    request('/auto-sign-in').then(({ response, error }) => {
-      console.log(response, error);
-    });
-  }, [request]);
+  const user = useSelector((state) => state.user);
 
   return (
     <div className="App">
-      <a
-        href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
-          window.location.href.split('/').slice(0, 3).join('/')
-        )}`}
-        rel="noopener noreferrer"
-      >
-        Google Sign In
-      </a>
-
-      <Button
-        onClick={() => {
-          request('/sign-out').then(({ response, error }) => {
-            console.log(response, error);
-          });
-        }}
-      >
-        Logout
-      </Button>
+      <header>
+        <h1>RemoteAuth</h1>
+        <AuthButton />
+      </header>
+      <main>
+        <pre>{JSON.stringify(user, null, 2)}</pre>
+      </main>
     </div>
   );
 };

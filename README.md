@@ -53,7 +53,7 @@ type Group = {
 type Session = {
   id: string;
   user: string;
-  expired: Date | null,
+  expired: Date | null;
   created: Date;
 };
 
@@ -173,12 +173,9 @@ export type RequestBody = null | {
   id?: string;
   sendEmail?: string;
   groups?: string[];
-  permissions?: Permission[];
-  sessions?: Session[];
-  links?: Link[];
-  logs?: Log[];
-  emails?: Email[];
-  configurations?: Configuration[];
+  collection?: string;
+  object?: User | Group | Session | Permission | Link | Log | Email | Configuration;
+  remove?: boolean;
 };
 ```
 
@@ -274,7 +271,11 @@ const autoSignIn = (cookies: Cookies): null | SignInResponse => {
 };
 
 // POST /sign-in
-const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {
+const manualSignIn = (
+  cookies: Cookies,
+  email: string,
+  password: string
+): ErrorResponse | SignInResponse => {
   // Validate password against hashed password of thisUser, if invalid return wrong credentials error
   // Create a session object
   // Find all thisUser groups and their children
@@ -310,17 +311,14 @@ const setUser = (
   // Return load(cookie)
 };
 
-// POST /set-config
-const setConfig = (
+// POST /set-object
+const setObject = (
   cookies: Cookies,
-  permissions: Permission[],
-  sessions: Session[],
-  links: Link[],
-  logs: Log[],
-  emails: Email[],
-  configurations: Configuration[]
+  collection: string,
+  object: User | Group | Session | Permission | Link | Log | Email | Configuration,
+  remove?: boolean
 ): LoadResponse => {
-  // For each object type remove all non-expired objects not in the list and add or update all others
-  // Return load(cookie)
+  // Update or remove the specified object
+  // Return load(cookies)
 };
 ```

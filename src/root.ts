@@ -3,7 +3,8 @@ import Cookies from 'cookies';
 import querystring from 'querystring';
 import { IncomingMessage, ServerResponse } from 'http';
 
-import { RequestBody, ErrorResponse } from './types';
+import { methodNotAllowed, missingFields } from './constants';
+import { RequestBody } from './types';
 import {
   publicKey,
   autoSignIn,
@@ -16,20 +17,8 @@ import {
   signOut,
   load,
   setUser,
-  setConfig
+  setObject
 } from './handlers';
-
-const missingFields = (): ErrorResponse => ({
-  type: 'error',
-  status: 400,
-  message: 'missing-fields'
-});
-
-const methodNotAllowed = (): ErrorResponse => ({
-  type: 'error',
-  status: 405,
-  message: 'method-not-allowed'
-});
 
 const root = async (request: IncomingMessage, response: ServerResponse, body: RequestBody) => {
   const cookies = new Cookies(request, response, { keys: ['abc', 'def'] });
@@ -37,15 +26,19 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
 
   response.setHeader('Content-Type', 'application/json');
 
-  if (['/auto-sign-in', '/sign-out'].includes(url)) {
-    response.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (headers.origin && ![process.env.CLIENT_URL].includes(headers.origin)) {
+    response.writeHead(403);
 
-    response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
-
-    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    return response.end();
   }
+
+  response.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
+
+  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
 
   if (request.method === 'OPTIONS') {
     response.writeHead(200);
@@ -53,13 +46,7 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
     return response.end();
   }
 
-  if (headers.origin && ![process.env.API_URL, process.env.CLIENT_URL].includes(headers.origin)) {
-    response.writeHead(403);
-
-    return response.end();
-  }
-
-  if (!['POST', 'GET'].includes(method)) return methodNotAllowed();
+  if (!['POST', 'GET'].includes(method)) return methodNotAllowed;
 
   const handler = method === 'GET' ? get : post;
 
@@ -97,20 +84,20 @@ const get = (url: string, cookies: Cookies) => {
   if (url === '/public-key') return publicKey();
 
   if (url.indexOf('/google-redirect?') === 0) {
-    if (typeof params.redirect !== 'string') return missingFields();
+    if (typeof params.redirect !== 'string') return missingFields;
 
     return googleRedirect(params.redirect);
   }
 
   if (url.indexOf('/sign-in-link?') === 0) {
-    if (typeof params.id !== 'string') return missingFields();
+    if (typeof params.id !== 'string') return missingFields;
 
     return signInLink(params.id);
   }
 
   if (url.indexOf('/google-sign-in?') === 0) {
     if (typeof params.code !== 'string' || typeof params.state !== 'string') {
-      return missingFields();
+      return missingFields;
     }
 
     return googleSignIn(cookies, params.code, params.state);
@@ -123,9 +110,9 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
   if (url === '/sign-in') {
     const { email, password } = body;
 
-    if (typeof email !== 'string' || typeof password !== 'string') return missingFields();
+    if (typeof email !== 'string' || typeof password !== 'string') return missingFields;
 
-    return manualSignIn(email, password);
+    return manualSignIn(cookies, email, password);
   }
 
   if (url === '/sign-up') {
@@ -137,7 +124,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
       typeof redirect !== 'string' ||
       (typeof name !== 'undefined' && typeof name === 'string')
     ) {
-      return missingFields();
+      return missingFields;
     }
 
     return manualSignUp(email, password, redirect, name);
@@ -146,7 +133,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
   if (url === '/forgot-password') {
     const { email, redirect } = body;
 
-    if (typeof email !== 'string' || typeof redirect !== 'string') return missingFields();
+    if (typeof email !== 'string' || typeof redirect !== 'string') return missingFields;
 
     return forgotPassword(email, redirect);
   }
@@ -163,31 +150,31 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
         (prop) => !['string', 'undefined'].includes(typeof prop)
       )
     ) {
-      return missingFields();
+      return missingFields;
     }
 
     if (
       typeof groups !== 'undefined' &&
       (!(groups instanceof Array) || groups.find((group) => typeof group !== 'string'))
     ) {
-      return missingFields();
+      return missingFields;
     }
 
     return setUser(cookies, id, email, sendEmail, groups, name, password);
   }
 
-  if (url === '/set-config') {
-    const { permissions, sessions, links, logs, emails, configurations } = body;
+  if (url === '/set-object') {
+    const { object, collection, remove } = body;
 
     if (
-      [permissions, sessions, links, logs, emails, configurations].find(
-        (prop) => !(prop instanceof Array)
-      )
+      !object ||
+      typeof collection !== 'string' ||
+      (remove !== undefined && typeof remove !== 'boolean')
     ) {
-      return missingFields();
+      return missingFields;
     }
 
-    return setConfig(cookies, permissions, sessions, links, logs, emails, configurations);
+    return setObject(cookies, collection, object, remove);
   }
 };
 

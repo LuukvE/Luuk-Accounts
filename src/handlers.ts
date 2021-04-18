@@ -1,9 +1,18 @@
-import querystring from 'querystring';
-import fetch from 'node-fetch';
 import Cookies, { SetOption } from 'cookies';
+import querystring from 'querystring';
 import { nanoid } from 'nanoid';
+import fetch from 'node-fetch';
+import crypto from 'crypto';
 
-import { getUser, saveUser, findSessions, saveSession, getSession } from './database';
+import {
+  getUser,
+  saveUser,
+  findSessions,
+  saveSession,
+  getSession,
+  saveGroup,
+  getAll
+} from './database';
 
 import {
   User,
@@ -21,14 +30,7 @@ import {
   LoadResponse
 } from './types';
 
-const cookieName = '__Secure-Session-ID';
-
-const cookieOptions: SetOption = {
-  signed: true,
-  sameSite: 'lax',
-  secure: true,
-  httpOnly: true
-};
+import { cookieName, cookieOptions, wrongCredentials, passwordInsecure } from './constants';
 
 // GET /public-key
 export const publicKey = async (): Promise<KeyResponse> => {
@@ -115,7 +117,6 @@ export const googleSignIn = async (
 
   const foundUser = await getUser(googleUser.email);
 
-  // Create or update thisUser with Google id, email, name and picture
   const user = await saveUser({
     created: new Date(),
     ...foundUser,
@@ -127,7 +128,6 @@ export const googleSignIn = async (
 
   const sessions = await findSessions({ user: user.email, expired: null });
 
-  // Create a session
   const session =
     sessions[0] ||
     (await saveSession({
@@ -137,7 +137,6 @@ export const googleSignIn = async (
       created: new Date()
     }));
 
-  // Set a cookie
   cookies.set(cookieName, session.id, {
     ...cookieOptions,
     expires: new Date(2050, 1, 1)
@@ -190,16 +189,33 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
 
 // POST /sign-in
 export const manualSignIn = async (
+  cookies: Cookies,
   email: string,
   password: string
 ): Promise<ErrorResponse | SignInResponse> => {
-  // Find thisUser, if not found return wrong credentials error
-  // Validate password against hashed password, if invalid return wrong credentials error
-  // Create a session object
-  // Find all thisUser groups and their children
-  // Create JWT token
-  // Return response
-  return null as any;
+  const user = await getUser(email.toLowerCase());
+
+  const hash = crypto.createHash('sha256').update(password).digest('hex');
+
+  if (!user || user.password !== hash) return wrongCredentials;
+
+  const sessions = await findSessions({ user: user.email, expired: null });
+
+  const session =
+    sessions[0] ||
+    (await saveSession({
+      id: nanoid(),
+      user: user.email,
+      expired: null,
+      created: new Date()
+    }));
+
+  cookies.set(cookieName, session.id, {
+    ...cookieOptions,
+    expires: new Date(2050, 1, 1)
+  });
+
+  return autoSignIn(cookies);
 };
 
 // POST /sign-up
@@ -209,18 +225,29 @@ export const manualSignUp = async (
   redirect: string,
   name?: string
 ): Promise<ErrorResponse | null> => {
-  // Find user, if found send forgot password email and return null
+  const user = await getUser(email.toLowerCase());
+
+  if (user) return forgotPassword(user.email, redirect);
+
   // If password too short return password insecure error
-  // Hash the password and create a link
+  if (!password) return passwordInsecure;
+
+  const hash = crypto.createHash('sha256').update(password).digest('hex');
+
   // Send an email with the link and return null
-  return null as any;
+
+  return null;
 };
 
 // POST /forgot-password
 export const forgotPassword = async (email: string, redirect: string): Promise<null> => {
-  // Find thisUser, if found create a link and send an email
-  // Return null
-  return null as any;
+  const user = await getUser(email.toLowerCase());
+
+  if (user) {
+    // Find thisUser, if found create a link and send an email
+  }
+
+  return null;
 };
 
 // POST /sign-out
@@ -231,27 +258,41 @@ export const signOut = async (cookies: Cookies): Promise<null> => {
 
   const sessions = await findSessions({ user: signin.email, expired: null });
 
-  // Update all non-expired sessions to expired: now()
   await Promise.all(sessions.map((session) => saveSession({ ...session, expired: new Date() })));
 
-  // If cookie is not empty, remove it
   cookies.set(cookieName, undefined, cookieOptions);
 
   return null;
 };
 
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
-const getOwnedGroups = async (email: string): Promise<Group[]> => {
+const getOwnedGroups = async (permissions: string[]): Promise<Group[]> => {
   return [];
 };
 
 // POST /load
 export const load = async (cookies: Cookies): Promise<LoadResponse> => {
+  const signin = await autoSignIn(cookies);
+
+  const ownedGroups = await getOwnedGroups(signin.permissions);
+
   // Find all users part of ownedGroups or their children
-  // If thisUser permissions don't include root-admin, return response
+
+  const response: LoadResponse = {
+    type: 'load',
+    groups: ownedGroups,
+    users: []
+  };
+
+  if (!signin.permissions.includes('root-admin')) return response;
+
   // Find all non-expired objects that are not users or groups
-  // return response
-  return null as any;
+  const fullResponse = await getAll();
+
+  return {
+    ...fullResponse,
+    ...response
+  };
 };
 
 // POST /set-user
@@ -275,17 +316,15 @@ export const setUser = async (
   return null as any;
 };
 
-// POST /set-config
-export const setConfig = async (
+// POST /set-object
+export const setObject = async (
   cookies: Cookies,
-  permissions: Permission[],
-  sessions: Session[],
-  links: Link[],
-  logs: Log[],
-  emails: Email[],
-  configurations: Configuration[]
+  collection: string,
+  object: User | Group | Session | Permission | Link | Log | Email | Configuration,
+  remove?: boolean
 ): Promise<LoadResponse> => {
   // For each object type remove all non-expired objects not in the list and add or update all others
-  // Return load(cookie)
-  return null as any;
+  console.log('updating', collection, object, 'remove?', remove);
+
+  return load(cookies);
 };
