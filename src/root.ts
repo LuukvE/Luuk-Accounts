@@ -33,7 +33,31 @@ const methodNotAllowed = (): ErrorResponse => ({
 
 const root = async (request: IncomingMessage, response: ServerResponse, body: RequestBody) => {
   const cookies = new Cookies(request, response, { keys: ['abc', 'def'] });
-  const { url, method } = request;
+  const { url, method, headers } = request;
+
+  response.setHeader('Content-Type', 'application/json');
+
+  if (['/auto-sign-in', '/sign-out'].includes(url)) {
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
+
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.writeHead(200);
+
+    return response.end();
+  }
+
+  if (headers.origin && ![process.env.API_URL, process.env.CLIENT_URL].includes(headers.origin)) {
+    response.writeHead(403);
+
+    return response.end();
+  }
 
   if (!['POST', 'GET'].includes(method)) return methodNotAllowed();
 
