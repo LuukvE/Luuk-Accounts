@@ -1,0 +1,52 @@
+@import '../variables';
+@import '~bootstrap/scss/bootstrap';
+@import '~@fontsource/open-sans/300.css';
+@import '~@fontsource/open-sans/400.css';
+@import '~@fontsource/open-sans/600.css';
+@import '~@fontsource/open-sans/700.css';
+@import '~@fontsource/open-sans/800.css';
+@import '~@fortawesome/fontawesome-free/css/all';
+
+html,
+body {
+  color: $white;
+  background: $dark;
+  font-family: 'Open Sans';
+  font-weight: 600;
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb:vertical {
+    margin: 5px;
+    background-color: #999;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-button:start:decrement,
+  &::-webkit-scrollbar-button:end:increment {
+    height: 5px;
+    display: block;
+  }
+}
+
+.App {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+
+  a {
+    text-decoration: none;
+    outline: 0;
+  }
+
+  .btn {
+    box-shadow: none;
+    &.active,
+    &.active:focus,
+    &.active:active:focus,
+    &:not(:disabled):not(.disabled).active:focus,
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}

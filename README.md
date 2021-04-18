@@ -22,7 +22,7 @@ type User = {
   id: string;
   email: string;
   password: string;
-  google?: number;
+  google?: string;
   groups: string[];
   name: string;
   picture: string;
@@ -42,7 +42,7 @@ type Group = {
   slug: string;
   permissions: string[];
   owner: string; // permission slug
-  parent?: string; // group slug
+  parent: string | null; // group slug
   name: string;
   description: string;
   created: Date;
@@ -53,7 +53,7 @@ type Group = {
 type Session = {
   id: string;
   user: string;
-  expired?: Date;
+  expired: Date | null,
   created: Date;
 };
 
@@ -62,9 +62,9 @@ type Link = {
   id: string;
   name: string;
   email: string;
-  password?: string;
+  password: string | null;
   redirect: string;
-  expired?: Date;
+  expired: Date | null;
   created: Date;
 };
 
@@ -124,7 +124,6 @@ type SignInResponse = {
   id: string;
   token: string;
   permissions: string[];
-  session: string;
   email: string;
   name: string;
   picture: string;
@@ -138,7 +137,7 @@ type LoadResponse = {
   groups: {
     slug: string;
     permissions: string[];
-    parent?: string; // group slug
+    parent: string | null; // group slug
     name: string;
     description: string;
     created: Date;
@@ -168,7 +167,7 @@ type LoadResponse = {
 ```typescript
 export type RequestBody = null | {
   email?: string;
-  password?: string;
+  password: string | null;
   redirect?: string;
   name?: string;
   id?: string;
@@ -178,8 +177,8 @@ export type RequestBody = null | {
   sessions?: Session[];
   links?: Link[];
   logs?: Log[];
-  emails: Email[];
-  configurations: Configuration[];
+  emails?: Email[];
+  configurations?: Configuration[];
 };
 ```
 
@@ -228,15 +227,6 @@ const googleSignIn = (code: string, redirect: string): RedirectResponse => {
   // Redirect
 };
 
-// POST /auto-sign-in
-const autoSignIn = (cookies: Cookies): null | SignInResponse => {
-  // If cookie is empty return null
-  // Find a non-expired session, if not found return null
-  // Find thisUser, all its groups and their children
-  // Create JWT token
-  // Return response
-};
-
 // POST /sign-up
 const manualSignUp = (
   email: string,
@@ -273,6 +263,15 @@ Cookie required to send requests
 // Find thisUser related to the session, if not found return not signed in error
 // Find all permissions thisUser has by collecting all permissions from users groups and their children
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
+
+// POST /auto-sign-in
+const autoSignIn = (cookies: Cookies): null | SignInResponse => {
+  // If cookie is empty return null
+  // Find a non-expired session, if not found return null
+  // Find thisUser, all its groups and their children
+  // Create JWT token
+  // Return response
+};
 
 // POST /sign-in
 const manualSignIn = (email: string, password: string): ErrorResponse | SignInResponse => {

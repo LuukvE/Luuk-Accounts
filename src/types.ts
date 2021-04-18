@@ -70,7 +70,7 @@ export type Configuration = {
 // Response Objects
 
 export type KeyResponse = {
-  type: 'key';
+  type: 'key',
   key: string;
 };
 
@@ -86,11 +86,10 @@ export type RedirectResponse = {
 };
 
 export type SignInResponse = {
-  type: 'sign-in';
+  type: 'sign-in',
   id: string;
   token: string;
   permissions: string[];
-  session: string;
   email: string;
   name: string;
   picture: string;
@@ -99,7 +98,7 @@ export type SignInResponse = {
 };
 
 export type LoadResponse = {
-  type: 'load';
+  type: 'load',
   groups: {
     slug: string;
     permissions: string[];
@@ -134,10 +133,10 @@ export type RequestBody = null | {
   id?: string;
   sendEmail?: string;
   groups?: string[];
-  permissions?: Permission[];
-  sessions?: Session[];
-  links?: Link[];
-  logs?: Log[];
-  emails: Email[];
-  configurations: Configuration[];
-};
+  permissions?: Permission[],
+  sessions?: Session[],
+  links?: Link[],
+  logs?: Log[],
+  emails: Email[],
+  configurations: Configuration[]
+}

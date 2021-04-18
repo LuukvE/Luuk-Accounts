@@ -1,6 +1,8 @@
+import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import http, { RequestListener } from 'http';
+import https from 'https';
 
 import { RequestBody } from './types';
 import root from './root';
@@ -10,15 +12,21 @@ dotenv.config({
 });
 
 const httpHandler: RequestListener = async function httpHandler(request, response) {
-  response.setHeader('Content-Type', 'application/json');
+  if (['/auto-sign-in', '/sign-out'].includes(request.url)) {
+    response.setHeader('Content-Type', 'application/json');
 
-  response.setHeader('Access-Control-Allow-Credentials', 'true');
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  response.setHeader('Access-Control-Allow-Origin', `http://${process.env.CLIENT_DOMAIN}`);
+    response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
 
-  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  } else if (request.headers.origin && request.headers.origin !== process.env.API_URL) {
+    response.writeHead(403);
+
+    return response.end();
+  }
 
   if (request.method === 'OPTIONS') {
     response.writeHead(200);
@@ -49,6 +57,24 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
   });
 };
 
-http.createServer(httpHandler).listen(process.env.HTTP_PORT);
+http
+  .createServer((request, response) => {
+    response.writeHead(302, { Location: `${process.env.API_URL}${request.url}` });
+    response.end();
+  })
+  .listen(process.env.HTTP_PORT);
 
-console.log(`API: http://${process.env.API_DOMAIN}:${process.env.HTTP_PORT}`);
+// Host the API using SSL certificates from the ./ssl folder, ignored by Git
+const certPath = './ssl';
+
+https
+  .createServer(
+    {
+      key: fs.readFileSync(`${certPath}/key.pem`, 'utf8'),
+      cert: fs.readFileSync(`${certPath}/cert.pem`, 'utf8')
+    },
+    httpHandler
+  )
+  .listen(process.env.HTTPS_PORT);
+
+console.log(`API: ${process.env.API_URL}`);

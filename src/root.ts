@@ -42,9 +42,9 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
   const result = await handler(url, cookies, body);
 
   if (result === null) {
-    response.writeHead(204);
+    response.writeHead(200);
 
-    return response.end();
+    return response.end(JSON.stringify(result));
   }
 
   if (!result) {
@@ -65,8 +65,10 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
 };
 
 const get = (url: string, cookies: Cookies) => {
-  const uri = new URL(url, `http://${process.env.API_DOMAIN}`);
-  const params = querystring.parse(uri.search);
+  const uri = new URL(url, process.env.API_URL);
+  const params = querystring.parse(uri.search.substring(1));
+
+  if (url === '/') return null;
 
   if (url === '/public-key') return publicKey();
 
@@ -83,11 +85,11 @@ const get = (url: string, cookies: Cookies) => {
   }
 
   if (url.indexOf('/google-sign-in?') === 0) {
-    if (typeof params.code !== 'string' || typeof params.redirect !== 'string') {
+    if (typeof params.code !== 'string' || typeof params.state !== 'string') {
       return missingFields();
     }
 
-    return googleSignIn(cookies, params.code, params.redirect);
+    return googleSignIn(cookies, params.code, params.state);
   }
 };
 
