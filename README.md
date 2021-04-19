@@ -10,10 +10,9 @@ A complete authentication and user management solution.
 
 ## APIs
 
-- **Google OAuth 2.0:** Enables Google Sign-in
 - **Google Cloud Functions:** Hosts the TypeScript API
 - **Google Cloud FireStore:** Hosts the database
-- **Google Mail:** Enables automated e-mails
+- **Sendgrid:** Enables automated e-mails
 
 ## Database
 
