@@ -11,6 +11,12 @@ export const cookieOptions: SetOption = {
   httpOnly: true
 };
 
+export const ServerError: ErrorResponse = {
+  type: 'error',
+  status: 500,
+  message: 'server-error-occurred'
+};
+
 export const notSignedIn: ErrorResponse = {
   type: 'error',
   status: 401,

@@ -8,19 +8,21 @@ import React, {
   useCallback,
   FormEvent
 } from 'react';
+import { ReactSVG } from 'react-svg';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-import { ReactSVG } from 'react-svg';
 
 import useAuth from '../hooks/useAuth';
-import { useSelector } from '../store';
+import { useSelector, useDispatch, actions } from '../store';
 
 const AuthButton: FC = () => {
-  const { request, loading } = useAuth();
+  const dispatch = useDispatch();
   const preventAutoHide = useRef(false);
+  const { request, loading } = useAuth();
   const { user, error } = useSelector((state) => state);
+  const [mailSent, setMailSent] = useState(false);
   const [initializing, setInitializing] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [showSignInMenu, setShowSignInMenu] = useState(false);
@@ -53,9 +55,25 @@ const AuthButton: FC = () => {
     });
   }, [request]);
 
-  const signIn = useCallback(
+  useEffect(() => {
+    return () => setMailSent(false);
+  }, [showSignInMenu]);
+
+  const submit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+
+      if (forgotPassword) {
+        request('/forgot-password', {
+          email,
+          redirect: window.location.href
+        }).then(({ error }) => {
+          if (error) return console.log(error);
+
+          setMailSent(true);
+        });
+        return;
+      }
 
       request('/sign-in', {
         email,
@@ -70,7 +88,7 @@ const AuthButton: FC = () => {
         setEmail('');
       });
     },
-    [request, email, password]
+    [request, forgotPassword, email, password]
   );
 
   return (
@@ -135,7 +153,7 @@ const AuthButton: FC = () => {
           }}
           className={`auth-menu${showSignInMenu ? ' active' : ''}`}
         >
-          <form onSubmit={signIn}>
+          <form onSubmit={submit}>
             <a
               className="btn btn-light"
               href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
@@ -168,27 +186,38 @@ const AuthButton: FC = () => {
                 placeholder="Password"
               />
             )}
-            <Button block type="submit">
-              {loading ? (
-                <Spinner animation="border" />
-              ) : forgotPassword ? (
-                <span>
-                  Mail sign-in link <i className="fas fa-paper-plane" />
-                </span>
-              ) : (
-                'Sign in'
-              )}
-            </Button>
+            {!mailSent && (
+              <Button block type="submit">
+                {loading ? (
+                  <Spinner animation="border" />
+                ) : forgotPassword ? (
+                  <span>
+                    Mail sign-in link <i className="fas fa-paper-plane" />
+                  </span>
+                ) : (
+                  'Sign in'
+                )}
+              </Button>
+            )}
             {error && (
               <Badge variant="danger">
                 {error.message === 'wrong-credentials'
-                  ? 'E-mail or password are incorrect'
+                  ? 'E-mail or password is wrong'
                   : error.message}
               </Badge>
             )}
+            {mailSent && <Badge variant="success">Mail has been sent</Badge>}
             <small
               className="btn-forgot-password"
               onClick={() => {
+                setMailSent(false);
+
+                dispatch(
+                  actions.set({
+                    error: null
+                  })
+                );
+
                 setForgotPassword(!forgotPassword);
               }}
             >

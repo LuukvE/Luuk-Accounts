@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 import { useDispatch, actions } from '../store';
 
@@ -6,16 +6,28 @@ const apiURL = process.env.REACT_APP_API_URL;
 
 const useAuth = () => {
   const dispatch = useDispatch();
+  const abort = useRef<AbortController | null>(null);
   const [loading, setLoading] = useState(false);
 
   const request = useCallback(
     async (url: string, body?: any) => {
       setLoading(true);
 
+      dispatch(
+        actions.set({
+          error: null
+        })
+      );
+
+      if (abort.current) abort.current?.abort();
+
+      const { signal } = (abort.current = new AbortController());
+
       try {
         const res = await fetch(`${apiURL}${url}`, {
           method: 'POST',
           mode: 'cors',
+          signal,
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
@@ -39,13 +51,14 @@ const useAuth = () => {
 
         dispatch(
           actions.set({
-            user: response,
-            error: null
+            user: response
           })
         );
 
         return { response: response };
       } catch (error) {
+        if (signal.aborted) return { aborted: true };
+
         setLoading(false);
 
         return { error };

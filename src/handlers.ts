@@ -4,6 +4,8 @@ import { nanoid } from 'nanoid';
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 
+import mail from './mail';
+
 import {
   getUser,
   saveUser,
@@ -35,6 +37,7 @@ import {
   cookieOptions,
   wrongCredentials,
   passwordInsecure,
+  ServerError,
   notSignedIn
 } from './constants';
 
@@ -199,6 +202,8 @@ export const manualSignIn = async (
   email: string,
   password: string
 ): Promise<ErrorResponse | SignInResponse> => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   const user = await getUser(email.toLowerCase());
 
   const hash = crypto.createHash('sha256').update(password).digest('hex');
@@ -260,12 +265,24 @@ export const manualSignUp = async (
 };
 
 // POST /forgot-password
-export const forgotPassword = async (email: string, redirect: string): Promise<null> => {
+export const forgotPassword = async (
+  email: string,
+  redirect: string
+): Promise<ErrorResponse | null> => {
   const user = await getUser(email.toLowerCase());
 
-  if (user) {
-    // Find thisUser, if found create a link and send an email
-  }
+  if (!user) return null;
+
+  // Create a link
+
+  const { success } = await mail(
+    user.email,
+    'RemoteAuth: Forgot Password',
+    'Just think harder, lol',
+    '<strong>Just think harder, lol</strong>'
+  );
+
+  if (!success) return ServerError;
 
   return null;
 };

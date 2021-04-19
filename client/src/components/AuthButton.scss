@@ -134,8 +134,14 @@
       }
       .badge {
         margin-top: 8px;
-        background: $red;
         line-height: 1.5;
+        font-weight: 600;
+        &.badge-danger {
+          background: $red;
+        }
+        &.badge-success {
+          background: $green;
+        }
       }
       small {
         color: #888;
