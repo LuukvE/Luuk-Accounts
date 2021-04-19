@@ -30,7 +30,7 @@ type User = {
 
 // Groups form a hierarchy in two ways:
 // - Groups share their permissions with all their parents
-// - Users that are part of a group with the "owner" permission of another group (ownedGroup) can:
+// - Users that have the "owner" permission of another group (ownedGroup) can:
 //   - View all ownedGroups and their children
 //   - Create new users as long as they do not exist
 //   - Add or remove ownedGroups or their children from all users
