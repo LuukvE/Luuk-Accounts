@@ -10,11 +10,13 @@ import {
   getAll,
   getUser,
   getLink,
+  getGroup,
   getSession,
   saveUser,
   saveLink,
   saveGroup,
   saveSession,
+  findGroups,
   findSessions
 } from './database';
 
@@ -133,8 +135,8 @@ export const googleSignIn = async (
     email: googleUser.email,
     name: googleUser.name,
     google: googleUser.id,
-    picture: googleUser.picture || '',
-    ...foundUser
+    ...foundUser,
+    picture: googleUser.picture || ''
   });
 
   const sessions = await findSessions({ user: user.email, expired: null });
@@ -227,6 +229,29 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
   const user = await getUser(session.user);
 
   // Find all permissions thisUser has by collecting all permissions from users groups and their children
+  const groups = (await findGroups()).reduce((groups: { [slug: string]: Group }, group: Group) => {
+    groups[group.slug] = group;
+
+    return groups;
+  }, {});
+
+  const getPermissions = (permissions: string[], slug: string): string[] => {
+    const group = groups[slug];
+
+    group.permissions.forEach((permission) => {
+      if (!permissions.includes(permission)) permissions.push(permission);
+    });
+
+    const children = Object.values(groups).reduce((children: string[], child: Group) => {
+      if (child.parent === group.slug) children.push(child.slug);
+
+      return children;
+    }, []);
+
+    return children.reduce(getPermissions, permissions);
+  };
+
+  const permissions = user.groups.reduce(getPermissions, []);
 
   // Create JWT token
 
@@ -238,7 +263,7 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
     password: !!user.password,
     google: !!user.google,
     token: '',
-    permissions: []
+    permissions
   };
 };
 
@@ -378,17 +403,25 @@ export const signOut = async (cookies: Cookies): Promise<null> => {
 };
 
 // Find all groups that have an owner permission that is part of thisUser permissions and their children (ownedGroups)
-const getOwnedGroups = async (permissions: string[]): Promise<Group[]> => {
+const getOwnedGroups = async (groups: string[]): Promise<Group[]> => {
   return [];
 };
 
 // POST /load
 export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadResponse> => {
-  const signin = await autoSignIn(cookies);
+  const sessionID = cookies.get(cookieName, { signed: true });
 
-  if (!signin) return notSignedIn;
+  if (!sessionID) return null;
 
-  const ownedGroups = await getOwnedGroups(signin.permissions);
+  const session = await getSession(sessionID);
+
+  if (session.expired) return null;
+
+  const user = await getUser(session.user);
+
+  if (!user) return notSignedIn;
+
+  const ownedGroups = await getOwnedGroups(user.groups);
 
   // Find all users part of ownedGroups or their children
 
@@ -398,7 +431,7 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
     users: []
   };
 
-  if (!signin.permissions.includes('root-admin')) return response;
+  if (!user.groups.includes('root')) return response;
 
   // Find all non-expired objects that are not users or groups
   const fullResponse = await getAll();
@@ -425,7 +458,7 @@ export const setMe = async (
 
   const update = await saveUser({
     ...user,
-    name: name ? name : user.name,
+    name: typeof name === 'string' ? name : user.name,
     password: hash ? hash : user.password
   });
 

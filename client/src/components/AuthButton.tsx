@@ -13,6 +13,8 @@ import { useSelector, useDispatch, actions } from '../store';
 
 const AuthButton: FC = () => {
   const dispatch = useDispatch();
+  const userAvatar = useRef<null | HTMLImageElement>(null);
+  const userPicture = useRef<null | HTMLImageElement>(null);
   const preventAutoHide = useRef(false);
   const { request, loading } = useAuth();
   const { user, error } = useSelector((state) => state);
@@ -43,6 +45,18 @@ const AuthButton: FC = () => {
       document.documentElement.removeEventListener('click', listener);
     };
   }, []);
+
+  useLayoutEffect(() => {
+    if (!user?.picture) return;
+
+    [userAvatar, userPicture].forEach((img) => {
+      if (!img.current) return;
+
+      img.current.referrerPolicy = 'no-referrer';
+
+      img.current.src = user?.picture || '';
+    });
+  }, [user, userPicture]);
 
   useEffect(() => {
     request(`/auto-sign-in`).then(({ response, error }) => {
@@ -107,7 +121,7 @@ const AuthButton: FC = () => {
           }}
         >
           <span>
-            {user.picture && <img src={user.picture} alt="" />}
+            {user.picture && <img ref={userAvatar} alt="" />}
             {(user.name || user.email) &&
               (user.name || user.email).trim().substring(0, 1).toUpperCase()}
           </span>
@@ -120,7 +134,7 @@ const AuthButton: FC = () => {
           }}
           className={`auth-menu${showSignOutMenu ? ' active' : ''}`}
         >
-          {user.picture && <img src={user.picture} alt="" />}
+          {user.picture && <img ref={userPicture} alt="" />}
           <h4>{user.name || user.email}</h4>
           {user.name && <span>{user.email}</span>}
           <Button
@@ -135,7 +149,7 @@ const AuthButton: FC = () => {
           </Button>
         </div>
       )}
-      {(initializing || !user) && (
+      {!user && (
         <div
           onClick={() => {
             preventAutoHide.current = true;

@@ -2,6 +2,7 @@ import './App.scss';
 import '@fortawesome/fontawesome-free/js/all';
 import 'react-app-polyfill/ie11';
 import React, { FC, useCallback, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
@@ -14,8 +15,10 @@ import { useSelector } from '../store';
 import useAuth from '../hooks/useAuth';
 
 import AuthButton from './AuthButton';
+import Groups from './Groups';
 
 const App: FC = () => {
+  const history = useHistory();
   const { request, loading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,7 +68,13 @@ const App: FC = () => {
   return (
     <div className="App">
       <header>
-        <h1>RemoteAuth</h1>
+        <h1
+          onClick={() => {
+            history.push('/');
+          }}
+        >
+          RemoteAuth
+        </h1>
         <AuthButton />
       </header>
       <div className="hero">
@@ -88,55 +97,57 @@ const App: FC = () => {
               Sign in with Google
             </a>
             <small>or</small>
-            <div className="input-fields">
-              <Form.Control
-                required
-                id="username"
-                name="username"
-                value={email}
-                type="text"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                placeholder="E-mail"
-              />
-              <Form.Control
-                required
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-              />
-              <OverlayTrigger
-                placement="bottom"
-                overlay={(props: any) => (
-                  <Tooltip id="button-tooltip" {...props}>
-                    {showPassword ? 'Hide password' : 'Show password'}
-                  </Tooltip>
-                )}
-              >
-                <div
-                  onClick={() => {
-                    setShowPassword(!showPassword);
+            {!initializing && (
+              <div className="input-fields">
+                <Form.Control
+                  required
+                  id="username"
+                  name="username"
+                  value={email}
+                  type="text"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
                   }}
-                  className="show-password"
-                >
-                  {showPassword ? (
-                    <b>
-                      <i className="fas fa-eye-slash" />
-                    </b>
-                  ) : (
-                    <u>
-                      <i className="fas fa-eye" />
-                    </u>
+                  placeholder="E-mail"
+                />
+                <Form.Control
+                  required
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                />
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={(props: any) => (
+                    <Tooltip id="button-tooltip" {...props}>
+                      {showPassword ? 'Hide password' : 'Show password'}
+                    </Tooltip>
                   )}
-                </div>
-              </OverlayTrigger>
-            </div>
+                >
+                  <div
+                    onClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
+                    className="show-password"
+                  >
+                    {showPassword ? (
+                      <b>
+                        <i className="fas fa-eye-slash" />
+                      </b>
+                    ) : (
+                      <u>
+                        <i className="fas fa-eye" />
+                      </u>
+                    )}
+                  </div>
+                </OverlayTrigger>
+              </div>
+            )}
             {!mailSent && (
               <Button block type="submit">
                 {loading ? <Spinner animation="border" /> : 'Create your account'}
@@ -152,7 +163,16 @@ const App: FC = () => {
             {mailSent && <Badge variant="success">Mail has been sent</Badge>}
           </form>
         )}
-        <h2>Open Source Account System</h2>
+        <h2>
+          <a
+            className="github-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://github.com/LuukvE/Auth"
+          >
+            Open Source Account System
+          </a>
+        </h2>
       </div>
       <main>
         {!user && (
@@ -236,47 +256,50 @@ const App: FC = () => {
           </>
         )}
         {user && (
-          <div className="account-settings">
-            <h3>Account Settings</h3>
-            <Form.Control
-              placeholder="Name"
-              id="name"
-              name="name"
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-            />
-            <form
-              method="post"
-              action="about:blank"
-              target="auth-frame"
-              onSubmit={saveAccountSettings}
-            >
+          <>
+            <div className="account-settings">
+              <h3>Account Settings</h3>
               <Form.Control
-                placeholder="Email"
-                id="username"
-                name="username"
+                placeholder="Name"
+                id="name"
+                name="name"
                 type="text"
-                onChange={() => {}}
-                value={user.email}
-              />
-              <Form.Control
-                id="password"
-                name="password"
-                placeholder="Password"
-                type="password"
-                value={password}
+                value={name}
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setName(e.target.value);
                 }}
               />
-              <Button variant="success" type="submit" disabled={!password && user?.name === name}>
-                {loading ? <Spinner animation="border" /> : 'Save'}
-              </Button>
-            </form>
-          </div>
+              <form
+                method="post"
+                action="about:blank"
+                target="auth-frame"
+                onSubmit={saveAccountSettings}
+              >
+                <Form.Control
+                  placeholder="Email"
+                  id="username"
+                  name="username"
+                  type="text"
+                  onChange={() => {}}
+                  value={user.email}
+                />
+                <Form.Control
+                  id="password"
+                  name="password"
+                  placeholder="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                />
+                <Button variant="success" type="submit" disabled={!password && user?.name === name}>
+                  {loading ? <Spinner animation="border" /> : 'Save'}
+                </Button>
+              </form>
+            </div>
+            <Groups />
+          </>
         )}
       </main>
     </div>

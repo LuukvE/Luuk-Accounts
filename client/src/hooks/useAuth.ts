@@ -49,11 +49,21 @@ const useAuth = () => {
           return { error: response };
         }
 
-        dispatch(
-          actions.set({
-            user: response
-          })
-        );
+        const { type, ...data } = response;
+
+        if (response.type === 'sign-in') {
+          dispatch(
+            actions.set({
+              user: data
+            })
+          );
+        } else if (response.type === 'load') {
+          dispatch(
+            actions.set({
+              ...data
+            })
+          );
+        }
 
         return { response: response };
       } catch (error) {

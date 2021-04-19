@@ -61,6 +61,8 @@ body {
       font-size: 22px;
       color: $green;
       margin: 0 auto 0 0;
+      user-select: none;
+      cursor: pointer;
     }
   }
 
@@ -203,10 +205,12 @@ body {
       text-align: right;
       max-width: 500px;
       margin: auto 0 0;
-      color: white;
-      font-weight: 800;
-      font-size: 48px;
-      text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.5);
+      a {
+        color: white;
+        font-weight: 800;
+        font-size: 48px;
+        text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.5);
+      }
     }
   }
 

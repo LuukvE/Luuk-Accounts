@@ -53,6 +53,16 @@ export const getLink = async (id: string): Promise<Link | null> => {
   return { ...link, created: link.created.toDate() } as Link;
 };
 
+export const getGroup = async (slug: string): Promise<Group | null> => {
+  const document = firestore.doc(`groups/${slug}`);
+  const snapshot = await document.get();
+  const group = snapshot.data();
+
+  if (!group) return null;
+
+  return { ...group, created: group.created.toDate() } as Group;
+};
+
 export const saveUser = async (user: User): Promise<User> => {
   const document = firestore.doc(`users/${user.email}`);
 
@@ -126,6 +136,27 @@ export const findSessions = async (filter: {
       expired: session.expired?.toDate() || null,
       created: session.created.toDate()
     } as Session);
+  });
+
+  return results;
+};
+
+export const findGroups = async (filter?: { [key: string]: string | null }): Promise<Group[]> => {
+  const results: Group[] = [];
+  const query = Object.keys(filter || {}).reduce(
+    (query: any, key) => query.where(key, '==', filter[key]),
+    firestore.collection('groups')
+  );
+
+  const snapshot: QuerySnapshot = await query.get();
+
+  snapshot.forEach((doc) => {
+    const group = doc.data();
+
+    results.push({
+      ...group,
+      created: group.created.toDate()
+    } as Group);
   });
 
   return results;
