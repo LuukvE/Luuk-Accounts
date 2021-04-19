@@ -2,9 +2,13 @@ import './App.scss';
 import '@fortawesome/fontawesome-free/js/all';
 import 'react-app-polyfill/ie11';
 import React, { FC, useCallback, useEffect, useState } from 'react';
+import { ReactSVG } from 'react-svg';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Badge from 'react-bootstrap/Badge';
+import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import { useSelector } from '../store';
 import useAuth from '../hooks/useAuth';
@@ -12,10 +16,13 @@ import useAuth from '../hooks/useAuth';
 import AuthButton from './AuthButton';
 
 const App: FC = () => {
-  const user = useSelector((state) => state.user);
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const { request, loading } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { user, error } = useSelector((state) => state);
+  const [mailSent, setMailSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const saveAccountSettings = useCallback(() => {
     request('/set-me', {
@@ -25,6 +32,22 @@ const App: FC = () => {
       setPassword('');
     });
   }, [request, name, password]);
+
+  const createAccount = useCallback(() => {
+    request('/sign-up', {
+      email: email,
+      password: password,
+      redirect: window.location.href
+    }).then(({ error }) => {
+      if (error) return;
+
+      setEmail('');
+
+      setPassword('');
+
+      setMailSent(true);
+    });
+  }, [request, email, password]);
 
   useEffect(() => {
     setName(user?.name || '');
@@ -37,7 +60,88 @@ const App: FC = () => {
         <AuthButton />
       </header>
       <div className="hero">
-        <h2>Open Source Authentication Service</h2>
+        <form
+          onSubmit={createAccount}
+          target="auth-frame"
+          action="about:blank"
+          method="post"
+          className="create-account"
+        >
+          <a
+            className="btn btn-light"
+            href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
+              window.location.href.split('/').slice(0, 3).join('/')
+            )}`}
+            rel="noopener noreferrer"
+          >
+            <ReactSVG src="/google.svg" className="icon" />
+            Sign in with Google
+          </a>
+          <small>or</small>
+          <div className="input-fields">
+            <Form.Control
+              required
+              id="username"
+              name="username"
+              value={email}
+              type="text"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              placeholder="E-mail"
+            />
+            <Form.Control
+              required
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+            />
+            <OverlayTrigger
+              placement="bottom"
+              overlay={(props: any) => (
+                <Tooltip id="button-tooltip" {...props}>
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </Tooltip>
+              )}
+            >
+              <div
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+                className="show-password"
+              >
+                {showPassword ? (
+                  <b>
+                    <i className="fas fa-eye-slash" />
+                  </b>
+                ) : (
+                  <u>
+                    <i className="fas fa-eye" />
+                  </u>
+                )}
+              </div>
+            </OverlayTrigger>
+          </div>
+          {!mailSent && (
+            <Button block type="submit">
+              {loading ? <Spinner animation="border" /> : 'Create your account'}
+            </Button>
+          )}
+          {error && (
+            <Badge variant="danger">
+              {error.message === 'wrong-credentials'
+                ? 'E-mail or password is wrong'
+                : error.message}
+            </Badge>
+          )}
+          {mailSent && <Badge variant="success">Mail has been sent</Badge>}
+        </form>
+        <h2>Open Source Account System</h2>
       </div>
       <main>
         {!user && (
@@ -45,13 +149,15 @@ const App: FC = () => {
             <div>
               <h3>Introduction</h3>
               <p>
-                RemoteAuth is an out-of-the-box software solution for authentication and user
-                management. Instead of buying an authentication service, you can simply{' '}
+                RemoteAuth is account system software that can be remotely integrated with the other
+                services your business provides. Instead of buying an authentication service, you
+                can simply{' '}
                 <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">
                   install and use RemoteAuth for free
                 </a>
                 . This software is meant for software engineers that just want to keep building
-                their other services, without losing control of user authentication and management.
+                their other services, without losing control of user authentication and
+                authorization.
               </p>
             </div>
             <div>
@@ -80,8 +186,8 @@ const App: FC = () => {
                   </a>
                 </li>
                 <li>
-                  Full ownership of your user accounts, everything{' '}
-                  <i>(including the hashed passwords)</i> is yours
+                  Full ownership of your user accounts, all the data{' '}
+                  <i>(including hashed passwords)</i> is yours
                 </li>
               </ul>
             </div>
@@ -120,7 +226,7 @@ const App: FC = () => {
         )}
         {user && (
           <div className="account-settings">
-            <h2>Account Settings</h2>
+            <h3>Account Settings</h3>
             <Form.Control
               placeholder="Name"
               id="name"

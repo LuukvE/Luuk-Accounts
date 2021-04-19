@@ -304,7 +304,27 @@ export const manualSignUp = async (
 
   const hash = crypto.createHash('sha256').update(password).digest('hex');
 
-  // Send an email with the link and return null
+  // Create a link
+  const link = await saveLink({
+    id: nanoid(),
+    name: name || '',
+    email: email.toLowerCase(),
+    password: hash,
+    redirect,
+    expired: null,
+    created: new Date()
+  });
+
+  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
+
+  const { success } = await mail(
+    email,
+    'RemoteAuth: Verify your E-mail address',
+    `Sign in by going to ${linkURL}`,
+    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
+  );
+
+  if (!success) return ServerError;
 
   return null;
 };
