@@ -177,27 +177,30 @@ export const getAll = async (): Promise<LoadResponse> => {
 
   const { type, groups, users, ...collections } = response;
 
-  const loaders = Object.keys(collections).map((collection) => {
-    return async () => {
-      let query: any = firestore.collection(collection);
+  await Promise.all(
+    Object.keys(collections).map(
+      (collection) =>
+        new Promise(async (resolve) => {
+          let query: any = firestore.collection(collection);
 
-      if (['sessions', 'links'].includes(collection)) {
-        query = query.where('expired', '==', null);
-      }
+          if (['sessions', 'links'].includes(collection)) {
+            query = query.where('expired', '==', null);
+          }
 
-      const snapshot: QuerySnapshot = await query.get();
+          const snapshot: QuerySnapshot = await query.get();
 
-      snapshot.forEach((doc) => {
-        let data = doc.data();
+          snapshot.forEach((doc) => {
+            let data = doc.data();
 
-        if (data.created) data.created = data.created.toDate();
+            if (data.created) data.created = data.created.toDate();
 
-        response[collection].push(data);
-      });
-    };
-  });
+            response[collection].push(data);
+          });
 
-  await Promise.all(loaders);
+          resolve(null);
+        })
+    )
+  );
 
   return response;
 };

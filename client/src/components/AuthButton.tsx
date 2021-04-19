@@ -104,6 +104,8 @@ const AuthButton: FC = () => {
           onClick={() => {
             preventAutoHide.current = true;
 
+            setForgotPassword(false);
+
             setShowSignInMenu(!showSignInMenu);
           }}
           variant="light"

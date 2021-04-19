@@ -49,6 +49,8 @@ const useAuth = () => {
           return { error: response };
         }
 
+        if (response === null) return { response: response };
+
         const { type, ...data } = response;
 
         if (response.type === 'sign-in') {

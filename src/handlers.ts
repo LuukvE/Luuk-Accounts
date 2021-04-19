@@ -435,7 +435,7 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
 
   // Find all non-expired objects that are not users or groups
   const fullResponse = await getAll();
-
+  console.log('gotten all?');
   return {
     ...fullResponse,
     ...response
