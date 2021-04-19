@@ -67,7 +67,7 @@
   .auth-menu {
     position: absolute;
     top: calc(100% + 20px);
-    right: 0;
+    right: -22px;
     background: #fff;
     border: 1px solid #ccc;
     border-color: rgba(black, 0.2);
@@ -87,26 +87,47 @@
     form {
       text-align: center;
       width: 100%;
-      input {
-        background: #fcfcfc;
-        background: #fcfcfc;
-        border-color: #ddd;
-        box-shadow: none;
-        &:focus {
-          background: #f8f8f8;
+      .input-fields {
+        position: relative;
+
+        input {
+          background: #fcfcfc;
+          background: #fcfcfc;
+          border-color: #ddd;
+          box-shadow: none;
+          &:focus {
+            background: #f8f8f8;
+          }
+          &:first-of-type {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 0;
+          }
+          &:last-of-type {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+          }
+          &.forgotten-email {
+            border-radius: 0.25rem;
+            border: 1px solid #ddd;
+          }
         }
-        &:first-of-type {
-          border-bottom-left-radius: 0;
-          border-bottom-right-radius: 0;
-          border-bottom: 0;
-        }
-        &:last-of-type {
-          border-top-left-radius: 0;
-          border-top-right-radius: 0;
-        }
-        &.forgotten-email {
-          border-radius: 0.25rem;
-          border: 1px solid #ddd;
+
+        .show-password {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 30px;
+          width: 44px;
+          opacity: 0.5;
+          cursor: pointer;
+          transition: opacity 50ms;
+          &:hover {
+            opacity: 1;
+          }
         }
       }
       .btn {

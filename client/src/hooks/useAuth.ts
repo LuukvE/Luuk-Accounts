@@ -6,8 +6,8 @@ const apiURL = process.env.REACT_APP_API_URL;
 
 const useAuth = () => {
   const dispatch = useDispatch();
-  const abort = useRef<AbortController | null>(null);
   const [loading, setLoading] = useState(false);
+  const abort = useRef<AbortController | null>(null);
 
   const request = useCallback(
     async (url: string, body?: any) => {

@@ -7,38 +7,40 @@ import crypto from 'crypto';
 import mail from './mail';
 
 import {
+  getAll,
   getUser,
-  saveUser,
-  findSessions,
-  saveSession,
+  getLink,
   getSession,
+  saveUser,
+  saveLink,
   saveGroup,
-  getAll
+  saveSession,
+  findSessions
 } from './database';
 
 import {
-  User,
-  Group,
-  Session,
-  Link,
   Log,
-  Permission,
+  User,
+  Link,
+  Group,
   Email,
-  Configuration,
+  Session,
+  Permission,
   KeyResponse,
+  LoadResponse,
+  Configuration,
   ErrorResponse,
-  RedirectResponse,
   SignInResponse,
-  LoadResponse
+  RedirectResponse
 } from './types';
 
 import {
   cookieName,
+  ServerError,
+  notSignedIn,
   cookieOptions,
   wrongCredentials,
-  passwordInsecure,
-  ServerError,
-  notSignedIn
+  passwordInsecure
 } from './constants';
 
 // GET /public-key
@@ -54,12 +56,12 @@ export const publicKey = async (): Promise<KeyResponse> => {
 export const googleRedirect = async (redirect: string): Promise<RedirectResponse> => {
   // Create redirect query to a Google Signin page
   const query = new URLSearchParams({
-    redirect_uri: `${process.env.API_URL}/google-sign-in`,
-    client_id: process.env.GOOGLE_CLIENT_ID || '',
-    access_type: 'offline',
-    response_type: 'code',
     prompt: 'consent',
+    response_type: 'code',
+    access_type: 'offline',
+    client_id: process.env.GOOGLE_CLIENT_ID || '',
     state: Buffer.from(redirect).toString('base64'),
+    redirect_uri: `${process.env.API_URL}/google-sign-in`,
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email'
@@ -158,13 +160,58 @@ export const googleSignIn = async (
 };
 
 // GET /sign-in-link?id=<id>
-export const signInLink = async (id: string): Promise<RedirectResponse> => {
-  // Find the non-expired link, if not found redirect to link expired page
-  // Find thisUser, if not found create it
-  // Create session and set cookie
-  // Update the link to expired: now()
-  // Redirect to link redirect property
-  return null as any;
+export const signInLink = async (
+  cookies: Cookies,
+  id: string
+): Promise<RedirectResponse | null> => {
+  const link = await getLink(id);
+
+  if (!link) {
+    return {
+      type: 'redirect',
+      location: `${process.env.CLIENT_URL}/link-expired`
+    };
+  }
+
+  const foundUser = await getUser(link.email);
+
+  const user =
+    foundUser ||
+    (await saveUser({
+      email: link.email,
+      created: new Date(),
+      name: link.name,
+      groups: [],
+      google: null,
+      picture: null,
+      password: link.password || null
+    }));
+
+  const sessions = await findSessions({ user: user.email, expired: null });
+
+  const session =
+    sessions[0] ||
+    (await saveSession({
+      id: nanoid(),
+      user: user.email,
+      expired: null,
+      created: new Date()
+    }));
+
+  cookies.set(cookieName, session.id, {
+    ...cookieOptions,
+    expires: new Date(2050, 1, 1)
+  });
+
+  await saveLink({
+    ...link,
+    expired: new Date()
+  });
+
+  return {
+    type: 'redirect',
+    location: link.redirect
+  };
 };
 
 // POST /auto-sign-in
@@ -185,7 +232,6 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
 
   return {
     type: 'sign-in',
-    id: user.id,
     email: user.email,
     name: user.name,
     picture: user.picture,
@@ -232,7 +278,6 @@ export const manualSignIn = async (
 
   return {
     type: 'sign-in',
-    id: user.id,
     email: user.email,
     name: user.name,
     picture: user.picture,
@@ -274,12 +319,22 @@ export const forgotPassword = async (
   if (!user) return null;
 
   // Create a link
+  const link = await saveLink({
+    id: nanoid(),
+    name: user.name,
+    email: user.email,
+    redirect,
+    expired: null,
+    created: new Date()
+  });
+
+  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
   const { success } = await mail(
     user.email,
     'RemoteAuth: Forgot Password',
-    'Just think harder, lol',
-    '<strong>Just think harder, lol</strong>'
+    `Sign in by going to ${linkURL}`,
+    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
   );
 
   if (!success) return ServerError;

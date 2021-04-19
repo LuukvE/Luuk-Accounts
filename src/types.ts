@@ -1,13 +1,12 @@
 // Database Objects
 
 export type User = {
-  id: string;
   email: string;
-  password: string;
-  google?: number;
+  password: string | null;
+  google: string | null;
   groups: string[];
   name: string;
-  picture: string;
+  picture: string | null;
   created: Date;
 };
 
@@ -34,7 +33,7 @@ export type Link = {
   email: string;
   password?: string;
   redirect: string;
-  expired?: Date;
+  expired: Date | null;
   created: Date;
 };
 
@@ -87,7 +86,6 @@ export type RedirectResponse = {
 
 export type SignInResponse = {
   type: 'sign-in';
-  id: string;
   token: string;
   permissions: string[];
   email: string;
@@ -131,6 +129,7 @@ export type RequestBody = null | {
   redirect?: string;
   name?: string;
   id?: string;
+  session?: string;
   sendEmail?: string;
   groups?: string[];
   collection?: string;

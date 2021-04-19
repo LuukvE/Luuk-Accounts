@@ -1,18 +1,12 @@
 import './AuthButton.scss';
-import React, {
-  FC,
-  useEffect,
-  useState,
-  useLayoutEffect,
-  useRef,
-  useCallback,
-  FormEvent
-} from 'react';
+import React, { FC, useEffect, useState, useLayoutEffect, useRef, useCallback } from 'react';
 import { ReactSVG } from 'react-svg';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
+import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import useAuth from '../hooks/useAuth';
 import { useSelector, useDispatch, actions } from '../store';
@@ -23,6 +17,7 @@ const AuthButton: FC = () => {
   const { request, loading } = useAuth();
   const { user, error } = useSelector((state) => state);
   const [mailSent, setMailSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [initializing, setInitializing] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [showSignInMenu, setShowSignInMenu] = useState(false);
@@ -50,7 +45,7 @@ const AuthButton: FC = () => {
   }, []);
 
   useEffect(() => {
-    request('/auto-sign-in').then(({ response, error }) => {
+    request(`/auto-sign-in`).then(({ response, error }) => {
       setInitializing(false);
     });
   }, [request]);
@@ -59,37 +54,34 @@ const AuthButton: FC = () => {
     return () => setMailSent(false);
   }, [showSignInMenu]);
 
-  const submit = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
+  const submit = useCallback(() => {
+    setShowPassword(false);
 
-      if (forgotPassword) {
-        request('/forgot-password', {
-          email,
-          redirect: window.location.href
-        }).then(({ error }) => {
-          if (error) return console.log(error);
-
-          setMailSent(true);
-        });
-        return;
-      }
-
-      request('/sign-in', {
+    if (forgotPassword) {
+      request('/forgot-password', {
         email,
-        password
-      }).then(({ response }) => {
-        if (!response) return;
+        redirect: window.location.href
+      }).then(({ error }) => {
+        if (error) return console.log(error);
 
-        setShowSignInMenu(false);
-
-        setPassword('');
-
-        setEmail('');
+        setMailSent(true);
       });
-    },
-    [request, forgotPassword, email, password]
-  );
+      return;
+    }
+
+    request('/sign-in', {
+      email,
+      password
+    }).then(({ response }) => {
+      if (!response) return;
+
+      setShowSignInMenu(false);
+
+      setPassword('');
+
+      setEmail('');
+    });
+  }, [request, forgotPassword, email, password]);
 
   return (
     <div className="AuthButton">
@@ -105,8 +97,7 @@ const AuthButton: FC = () => {
           Sign in
         </Button>
       )}
-
-      {user && (
+      {!initializing && user && (
         <Button
           className="account-btn"
           onClick={() => {
@@ -116,15 +107,13 @@ const AuthButton: FC = () => {
           }}
         >
           <span>
-            {initializing && <Spinner animation="border" />}
-            {!initializing && user.picture && <img src={user.picture} alt="" />}
-            {!initializing &&
-              (user.name || user.email) &&
+            {user.picture && <img src={user.picture} alt="" />}
+            {(user.name || user.email) &&
               (user.name || user.email).trim().substring(0, 1).toUpperCase()}
           </span>
         </Button>
       )}
-      {user && (
+      {!initializing && user && (
         <div
           onClick={() => {
             preventAutoHide.current = true;
@@ -146,14 +135,20 @@ const AuthButton: FC = () => {
           </Button>
         </div>
       )}
-      {!user && (
+      {(initializing || !user) && (
         <div
           onClick={() => {
             preventAutoHide.current = true;
           }}
           className={`auth-menu${showSignInMenu ? ' active' : ''}`}
         >
-          <form onSubmit={submit}>
+          <form
+            method="post"
+            target="auth-frame"
+            action="about:blank"
+            autoComplete="on"
+            onSubmit={submit}
+          >
             <a
               className="btn btn-light"
               href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
@@ -165,27 +160,60 @@ const AuthButton: FC = () => {
               Sign in with Google
             </a>
             <small>or</small>
-            <Form.Control
-              required
-              className={forgotPassword ? 'forgotten-email' : ''}
-              value={email}
-              type="email"
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-              placeholder="E-mail"
-            />
-            {!forgotPassword && (
+            <div className="input-fields">
               <Form.Control
                 required
-                value={password}
+                id="username"
+                name="username"
+                className={forgotPassword ? 'forgotten-email' : ''}
+                value={email}
+                type="text"
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setEmail(e.target.value);
                 }}
-                type="password"
-                placeholder="Password"
+                placeholder="E-mail"
               />
-            )}
+              {!forgotPassword && (
+                <>
+                  <Form.Control
+                    required
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                    }}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                  />
+                  <OverlayTrigger
+                    placement="bottom"
+                    overlay={(props: any) => (
+                      <Tooltip id="button-tooltip" {...props}>
+                        {showPassword ? 'Hide password' : 'Show password'}
+                      </Tooltip>
+                    )}
+                  >
+                    <div
+                      onClick={() => {
+                        setShowPassword(!showPassword);
+                      }}
+                      className="show-password"
+                    >
+                      {showPassword ? (
+                        <b>
+                          <i className="fas fa-eye-slash" />
+                        </b>
+                      ) : (
+                        <u>
+                          <i className="fas fa-eye" />
+                        </u>
+                      )}
+                    </div>
+                  </OverlayTrigger>
+                </>
+              )}
+            </div>
             {!mailSent && (
               <Button block type="submit">
                 {loading ? (

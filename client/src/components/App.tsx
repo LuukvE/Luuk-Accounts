@@ -1,7 +1,7 @@
 import './App.scss';
 import '@fortawesome/fontawesome-free/js/all';
 import 'react-app-polyfill/ie11';
-import React, { FC, FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -17,19 +17,14 @@ const App: FC = () => {
   const [name, setName] = useState('');
   const { request, loading } = useAuth();
 
-  const saveAccountSettings = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
-
-      request('/set-me', {
-        name,
-        password: password || undefined
-      }).then(({ response, error }) => {
-        setPassword('');
-      });
-    },
-    [request, name, password]
-  );
+  const saveAccountSettings = useCallback(() => {
+    request('/set-me', {
+      name,
+      password: password || undefined
+    }).then(({ response, error }) => {
+      setPassword('');
+    });
+  }, [request, name, password]);
 
   useEffect(() => {
     setName(user?.name || '');
@@ -55,9 +50,8 @@ const App: FC = () => {
                 <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">
                   install and use RemoteAuth for free
                 </a>
-                .<br />
-                This software is meant for software engineers that just want to keep building their
-                other services, without losing control of user authentication and management.
+                . This software is meant for software engineers that just want to keep building
+                their other services, without losing control of user authentication and management.
               </p>
             </div>
             <div>
@@ -86,8 +80,8 @@ const App: FC = () => {
                   </a>
                 </li>
                 <li>
-                  Full ownership of your user accounts, everything including the hashed passwords
-                  are yours
+                  Full ownership of your user accounts, everything{' '}
+                  <i>(including the hashed passwords)</i> is yours
                 </li>
               </ul>
             </div>
@@ -125,27 +119,47 @@ const App: FC = () => {
           </>
         )}
         {user && (
-          <form className="account-settings" onSubmit={saveAccountSettings}>
+          <div className="account-settings">
             <h2>Account Settings</h2>
             <Form.Control
               placeholder="Name"
+              id="name"
+              name="name"
+              type="text"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
               }}
             />
-            <Form.Control
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
-            <Button variant="success" type="submit" disabled={!password && user?.name === name}>
-              {loading ? <Spinner animation="border" /> : 'Save'}
-            </Button>
-          </form>
+            <form
+              method="post"
+              action="about:blank"
+              target="auth-frame"
+              onSubmit={saveAccountSettings}
+            >
+              <Form.Control
+                placeholder="Email"
+                id="username"
+                name="username"
+                type="text"
+                onChange={() => {}}
+                value={user.email}
+              />
+              <Form.Control
+                id="password"
+                name="password"
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+              />
+              <Button variant="success" type="submit" disabled={!password && user?.name === name}>
+                {loading ? <Spinner animation="border" /> : 'Save'}
+              </Button>
+            </form>
+          </div>
         )}
       </main>
     </div>

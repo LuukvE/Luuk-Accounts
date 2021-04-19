@@ -36,7 +36,21 @@ export const getSession = async (id: string): Promise<Session | null> => {
 
   if (!session) return null;
 
-  return { ...session, created: session.created.toDate() } as Session;
+  return {
+    ...session,
+    expired: session.expired?.toDate() || null,
+    created: session.created.toDate()
+  } as Session;
+};
+
+export const getLink = async (id: string): Promise<Link | null> => {
+  const document = firestore.doc(`links/${id}`);
+  const snapshot = await document.get();
+  const link = snapshot.data();
+
+  if (!link) return null;
+
+  return { ...link, created: link.created.toDate() } as Link;
 };
 
 export const saveUser = async (user: User): Promise<User> => {
@@ -65,6 +79,18 @@ export const saveSession = async (session: Session): Promise<Session> => {
     expired: update.expired?.toDate() || null,
     created: update.created.toDate()
   } as Session;
+};
+
+export const saveLink = async (link: Link): Promise<Link> => {
+  const document = firestore.doc(`links/${link.id}`);
+
+  await document.set(link, { merge: true });
+
+  const snapshot = await document.get();
+
+  const update = snapshot.data();
+
+  return { ...update, created: update.created.toDate() } as Link;
 };
 
 export const saveGroup = async (group: Group): Promise<Group> => {

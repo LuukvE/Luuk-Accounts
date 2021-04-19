@@ -93,7 +93,7 @@ const get = (url: string, cookies: Cookies) => {
   if (url.indexOf('/sign-in-link?') === 0) {
     if (typeof params.id !== 'string') return missingFields;
 
-    return signInLink(params.id);
+    return signInLink(cookies, params.id);
   }
 
   if (url.indexOf('/google-sign-in?') === 0) {
