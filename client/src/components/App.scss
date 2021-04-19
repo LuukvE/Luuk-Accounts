@@ -87,6 +87,11 @@ body {
       text-align: center;
       position: relative;
       z-index: 1;
+      transition: opacity 300ms;
+
+      &.initializing {
+        opacity: 0;
+      }
 
       .input-fields {
         position: relative;

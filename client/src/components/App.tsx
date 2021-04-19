@@ -23,6 +23,13 @@ const App: FC = () => {
   const { user, error } = useSelector((state) => state);
   const [mailSent, setMailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+
+  useEffect(() => {
+    if (loading) return;
+
+    setTimeout(() => setInitializing(false), 300);
+  }, [loading, setInitializing]);
 
   const saveAccountSettings = useCallback(() => {
     request('/set-me', {
@@ -34,6 +41,8 @@ const App: FC = () => {
   }, [request, name, password]);
 
   const createAccount = useCallback(() => {
+    setShowPassword(false);
+
     request('/sign-up', {
       email: email,
       password: password,
@@ -60,87 +69,89 @@ const App: FC = () => {
         <AuthButton />
       </header>
       <div className="hero">
-        <form
-          onSubmit={createAccount}
-          target="auth-frame"
-          action="about:blank"
-          method="post"
-          className="create-account"
-        >
-          <a
-            className="btn btn-light"
-            href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
-              window.location.href.split('/').slice(0, 3).join('/')
-            )}`}
-            rel="noopener noreferrer"
+        {!user && (
+          <form
+            onSubmit={createAccount}
+            target="auth-frame"
+            action="about:blank"
+            method="post"
+            className={`create-account${initializing ? ' initializing' : ''}`}
           >
-            <ReactSVG src="/google.svg" className="icon" />
-            Sign in with Google
-          </a>
-          <small>or</small>
-          <div className="input-fields">
-            <Form.Control
-              required
-              id="username"
-              name="username"
-              value={email}
-              type="text"
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-              placeholder="E-mail"
-            />
-            <Form.Control
-              required
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
-            />
-            <OverlayTrigger
-              placement="bottom"
-              overlay={(props: any) => (
-                <Tooltip id="button-tooltip" {...props}>
-                  {showPassword ? 'Hide password' : 'Show password'}
-                </Tooltip>
-              )}
+            <a
+              className="btn btn-light"
+              href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
+                window.location.href.split('/').slice(0, 3).join('/')
+              )}`}
+              rel="noopener noreferrer"
             >
-              <div
-                onClick={() => {
-                  setShowPassword(!showPassword);
+              <ReactSVG src="/google.svg" className="icon" />
+              Sign in with Google
+            </a>
+            <small>or</small>
+            <div className="input-fields">
+              <Form.Control
+                required
+                id="username"
+                name="username"
+                value={email}
+                type="text"
+                onChange={(e) => {
+                  setEmail(e.target.value);
                 }}
-                className="show-password"
-              >
-                {showPassword ? (
-                  <b>
-                    <i className="fas fa-eye-slash" />
-                  </b>
-                ) : (
-                  <u>
-                    <i className="fas fa-eye" />
-                  </u>
+                placeholder="E-mail"
+              />
+              <Form.Control
+                required
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+              />
+              <OverlayTrigger
+                placement="bottom"
+                overlay={(props: any) => (
+                  <Tooltip id="button-tooltip" {...props}>
+                    {showPassword ? 'Hide password' : 'Show password'}
+                  </Tooltip>
                 )}
-              </div>
-            </OverlayTrigger>
-          </div>
-          {!mailSent && (
-            <Button block type="submit">
-              {loading ? <Spinner animation="border" /> : 'Create your account'}
-            </Button>
-          )}
-          {error && (
-            <Badge variant="danger">
-              {error.message === 'wrong-credentials'
-                ? 'E-mail or password is wrong'
-                : error.message}
-            </Badge>
-          )}
-          {mailSent && <Badge variant="success">Mail has been sent</Badge>}
-        </form>
+              >
+                <div
+                  onClick={() => {
+                    setShowPassword(!showPassword);
+                  }}
+                  className="show-password"
+                >
+                  {showPassword ? (
+                    <b>
+                      <i className="fas fa-eye-slash" />
+                    </b>
+                  ) : (
+                    <u>
+                      <i className="fas fa-eye" />
+                    </u>
+                  )}
+                </div>
+              </OverlayTrigger>
+            </div>
+            {!mailSent && (
+              <Button block type="submit">
+                {loading ? <Spinner animation="border" /> : 'Create your account'}
+              </Button>
+            )}
+            {error && (
+              <Badge variant="danger">
+                {error.message === 'wrong-credentials'
+                  ? 'E-mail or password is wrong'
+                  : error.message}
+              </Badge>
+            )}
+            {mailSent && <Badge variant="success">Mail has been sent</Badge>}
+          </form>
+        )}
         <h2>Open Source Account System</h2>
       </div>
       <main>
