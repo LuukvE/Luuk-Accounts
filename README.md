@@ -4,15 +4,15 @@ A complete authentication and user management solution.
 
 ## Functionality
 
-- [x] Users can sign up and sign in manually or with Google
-- [x] Users can manage other users, through groups and permissions
-- [x] The system can send email verification and forgot password emails
+- [x] Sign in with Google or with an email and password
+- [x] Authorize your users by giving permissions to nested groups
+- [x] Authenticate your users on your other APIs using JWT tokens
+- [x] Allow specific groups to manage other users through a user interface
 
-## APIs
+## Services
 
-- **Google Cloud Functions:** Hosts the TypeScript API
-- **Google Cloud FireStore:** Hosts the database
-- **Sendgrid:** Enables automated e-mails
+- **Sendgrid:** sends create account and forgot password e-mails
+- **Google Cloud Firestore:** stores user accounts and software configuration
 
 ## Considerations
 
@@ -40,8 +40,9 @@ type User = {
 //   - View all ownedGroups and their children
 //   - Create new users as long as they do not exist
 //   - Add or remove ownedGroups or their children from all users
-//   - Send welcome or forgot-password emails to users in their ownedGroups or their children
-// This means the most powerful group is at the top of the tree, least powerful is at the bottom
+//   - Send welcome emails to users in their ownedGroups or their children
+
+// The most powerful groups are at the top of the hiarchy, the least powerful are at the bottom
 
 type Group = {
   slug: string;
@@ -85,7 +86,7 @@ type Log = {
 
 // These are email templates
 type Email = {
-  slug: string; // verify-email, forgot-password, welcome
+  slug: string; // sign-up, forgot-password, welcome
   subject: string;
   html: string;
   text: string;
@@ -132,7 +133,6 @@ type LoadResponse = {
   // All ownedGroups and their children
   groups: {
     slug: string;
-    permissions: string[];
     parent: string | null; // group slug
     name: string;
     description: string;
@@ -140,8 +140,8 @@ type LoadResponse = {
   }[];
   // All users part of ownedGroups and their children
   users: {
-    name: string;
     email: string;
+    name: string;
     password: boolean;
     google: boolean;
     picture: string;
@@ -158,7 +158,7 @@ type RequestBody = null | {
   email?: string;
   groups?: string[];
   redirect?: string;
+  password?: string;
   sendEmail?: string;
-  password?: string | null;
 };
 ```

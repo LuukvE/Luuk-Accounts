@@ -25,8 +25,8 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
       body = chunks.length ? JSON.parse(chunks) : null;
 
       root(request, response, body);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
 
       response.writeHead(500);
 

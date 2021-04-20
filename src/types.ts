@@ -14,7 +14,7 @@ export type Group = {
   slug: string;
   permissions: string[];
   owner: string;
-  parent?: string;
+  parent: string | null;
   name: string;
   description: string;
   created: Date;
@@ -23,7 +23,7 @@ export type Group = {
 export type Session = {
   id: string;
   user: string;
-  expired?: Date;
+  expired: Date | null;
   created: Date;
 };
 
@@ -31,7 +31,7 @@ export type Link = {
   id: string;
   name: string;
   email: string;
-  password?: string;
+  password: string | null;
   redirect: string;
   expired: Date | null;
   created: Date;
@@ -39,10 +39,10 @@ export type Link = {
 
 export type Log = {
   id: string;
-  user?: string;
-  group?: string;
-  session?: string;
-  link?: string;
+  user: string | null;
+  group: string | null;
+  session: string | null;
+  link: string | null;
   type: string;
   action: string;
   detail: string;
@@ -99,14 +99,14 @@ export type LoadResponse = {
   type: 'load';
   ownedGroups: {
     slug: string;
-    parent?: string;
+    parent: string | null;
     name: string;
     description: string;
     created: Date;
   }[];
   users: {
-    name: string;
     email: string;
+    name: string;
     password: boolean;
     google: boolean;
     picture: string;
@@ -116,15 +116,10 @@ export type LoadResponse = {
 
 // Request Body
 export type RequestBody = null | {
-  email?: string;
-  password?: string;
-  redirect?: string;
   name?: string;
-  id?: string;
-  session?: string;
-  sendEmail?: string;
+  email?: string;
   groups?: string[];
-  collection?: string;
-  object?: User | Group | Session | Permission | Link | Log | Email | Configuration;
-  remove?: boolean;
+  redirect?: string;
+  password?: string;
+  sendEmail?: string;
 };

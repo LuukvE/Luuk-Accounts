@@ -83,9 +83,7 @@ const AuthButton: FC = () => {
         email,
         redirect: window.location.href
       }).then(({ error }) => {
-        if (error) return console.log(error);
-
-        setMailSent(true);
+        if (!error) setMailSent(true);
       });
       return;
     }

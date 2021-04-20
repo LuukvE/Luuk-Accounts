@@ -339,6 +339,7 @@ export const forgotPassword = async (
     id: nanoid(),
     name: user.name,
     email: user.email,
+    password: null,
     redirect,
     expired: null,
     created: new Date()
@@ -395,9 +396,9 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
   const response: LoadResponse = {
     type: 'load',
     ownedGroups: ownedGroups.map((group) => {
-      const { permissions, ...authorization } = group;
+      const { permissions, ...ownedGroup } = group;
 
-      return authorization;
+      return ownedGroup;
     }),
     users: users.map((user) => ({
       name: user.name,
@@ -505,6 +506,7 @@ export const setUser = async (
     id: nanoid(),
     name: userUpdate.name,
     email: userUpdate.email,
+    password: null,
     redirect,
     expired: null,
     created: new Date()

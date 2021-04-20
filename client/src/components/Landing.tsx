@@ -174,23 +174,13 @@ const Landing: FC = () => {
           </ul>
         </div>
         <div>
-          <h3>APIs</h3>
+          <h3>Services</h3>
           <ul>
             <li>
               <a href="https://sendgrid.com" target="_blank" rel="noopener noreferrer">
                 <b>Sendgrid</b>
               </a>{' '}
               sends create account and forgot password e-mails
-            </li>
-            <li>
-              <a
-                href="https://cloud.google.com/functions"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <b>Google Cloud Functions</b>
-              </a>{' '}
-              hosts the SignOn TypeScript API
             </li>
             <li>
               <a

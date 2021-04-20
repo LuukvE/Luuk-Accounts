@@ -1,6 +1,6 @@
 export type Group = {
   slug: string;
-  parent?: string;
+  parent: string | null;
   name: string;
   description: string;
   created: string;

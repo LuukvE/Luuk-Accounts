@@ -20,9 +20,7 @@ const App: FC = () => {
   useEffect(() => {
     if (!user) return;
 
-    request('/load').then(({ error }) => {
-      if (error) return console.log(error);
-    });
+    request('/load');
   }, [request, user]);
 
   return (
@@ -37,7 +35,9 @@ const App: FC = () => {
         </h1>
         {user && (
           <>
-            <NavLink to="/">Introduction</NavLink>
+            <NavLink exact to="/">
+              Introduction
+            </NavLink>
             <NavLink to="/users">Users</NavLink>
           </>
         )}
