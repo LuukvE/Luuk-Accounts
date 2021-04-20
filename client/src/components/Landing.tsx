@@ -148,7 +148,7 @@ const Landing: FC = () => {
           </p>
         </div>
         <div>
-          <h3>Features</h3>
+          <h3>Functionality</h3>
           <ul>
             <li>Sign in with Google or with an email and password</li>
             <li>Authorize your users by giving permissions to nested groups</li>
@@ -189,7 +189,7 @@ const Landing: FC = () => {
               >
                 <b>Google Cloud Firestore</b>
               </a>{' '}
-              stores user accounts and software configuration
+              stores accounts and software configuration
             </li>
           </ul>
         </div>

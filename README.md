@@ -12,7 +12,7 @@ A complete authentication and user management solution.
 ## Services
 
 - **Sendgrid:** sends create account and forgot password e-mails
-- **Google Cloud Firestore:** stores user accounts and software configuration
+- **Google Cloud Firestore:** stores accounts and software configuration
 
 ## Considerations
 
@@ -26,11 +26,11 @@ A complete authentication and user management solution.
 ```typescript
 type User = {
   email: string;
-  google?: string;
-  password: string;
-  groups: string[];
   name: string;
-  picture: string;
+  groups: string[];
+  password: string | null;
+  google: string | null;
+  picture: string | null;
   created: Date;
 };
 
@@ -93,7 +93,7 @@ type Email = {
 };
 
 type Configuration = {
-  slug: string; // private-key, public-key, session-max-age, minimum-password-length, allowed-origin
+  slug: string; // private-key, public-key, allowed-origins, cookie-signature-keys
   value: string;
 };
 ```

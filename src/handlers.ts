@@ -1,7 +1,7 @@
-import Cookies from 'cookies';
 import querystring from 'querystring';
 import { nanoid } from 'nanoid';
 import fetch from 'node-fetch';
+import Cookies from 'cookies';
 import crypto from 'crypto';
 
 import {
@@ -12,7 +12,8 @@ import {
   saveLink,
   saveSession,
   findSessions,
-  getUsersInGroups
+  getUsersInGroups,
+  getConfiguration
 } from './database';
 
 import {
@@ -34,21 +35,15 @@ import {
   passwordInsecure
 } from './constants';
 
-import {
-  mailSignup,
-  mailWelcome,
-  mailForgotPassword,
-  getAllGroups,
-  getPermissions,
-  getOwnedGroups
-} from './helpers';
+import { mail, generateJWT, getAllGroups, getPermissions, getOwnedGroups } from './helpers';
 
 // GET /public-key
 export const publicKey = async (): Promise<KeyResponse> => {
-  // Return public key used to decrypt JWT tokens
+  const configuration = await getConfiguration('public-key');
+
   return {
     type: 'key',
-    key: 'hi'
+    key: configuration.value
   };
 };
 
@@ -163,13 +158,14 @@ export const googleSignIn = async (
 export const signInLink = async (
   cookies: Cookies,
   id: string
-): Promise<RedirectResponse | null> => {
+): Promise<RedirectResponse | ErrorResponse | null> => {
   const link = await getLink(id);
 
-  if (!link) {
+  if (!link || link.expired) {
     return {
-      type: 'redirect',
-      location: `${process.env.CLIENT_URL}/link-expired`
+      type: 'error',
+      status: 410,
+      message: 'This link has expired'
     };
   }
 
@@ -230,18 +226,19 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
 
   const permissions = await getPermissions(user, groups);
 
-  // Create JWT token
-
-  return {
+  const response = {
     type: 'sign-in',
     email: user.email,
     name: user.name,
     picture: user.picture,
     password: !!user.password,
     google: !!user.google,
-    token: '',
     permissions
-  };
+  } as SignInResponse;
+
+  response.token = await generateJWT(response);
+
+  return response;
 };
 
 // POST /sign-in
@@ -250,8 +247,6 @@ export const manualSignIn = async (
   email: string,
   password: string
 ): Promise<ErrorResponse | SignInResponse> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
   const user = await getUser(email.toLowerCase());
 
   const hash = crypto.createHash('sha256').update(password).digest('hex');
@@ -274,20 +269,23 @@ export const manualSignIn = async (
     expires: new Date(2050, 1, 1)
   });
 
-  // Find all permissions thisUser has by collecting all permissions from users groups and their children
+  const groups = await getAllGroups();
 
-  // Create JWT token
+  const permissions = await getPermissions(user, groups);
 
-  return {
+  const response = {
     type: 'sign-in',
     email: user.email,
     name: user.name,
     picture: user.picture,
     password: !!user.password,
     google: !!user.google,
-    token: '',
-    permissions: []
-  };
+    permissions
+  } as SignInResponse;
+
+  response.token = await generateJWT(response);
+
+  return response;
 };
 
 // POST /sign-up
@@ -319,7 +317,7 @@ export const manualSignUp = async (
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
-  const { success } = await mailSignup(email, linkURL);
+  const { success } = await mail('sign-up', email, linkURL);
 
   if (!success) return ServerError;
 
@@ -347,7 +345,7 @@ export const forgotPassword = async (
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
-  const { success } = await mailForgotPassword(user.email, linkURL);
+  const { success } = await mail('forgot-password', user.email, linkURL);
 
   if (!success) return ServerError;
 
@@ -514,7 +512,7 @@ export const setUser = async (
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
-  if (sendEmail === 'welcome') await mailWelcome(userUpdate.email, linkURL);
+  if (sendEmail === 'welcome') await mail('welcome', userUpdate.email, linkURL);
 
   return load(cookies);
 };

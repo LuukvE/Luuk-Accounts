@@ -1,9 +1,10 @@
 import sendgrid from '@sendgrid/mail';
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import path from 'path';
 
-import { User, Group } from './types';
-import { findGroups } from './database';
+import { User, Group, SignInResponse } from './types';
+import { getConfiguration, getEmail, findGroups } from './database';
 
 dotenv.config({
   path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV || 'development'}`)
@@ -12,11 +13,15 @@ dotenv.config({
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const mail = async (
-  to: string,
-  subject: string,
-  text: string,
-  html: string
+  slug: string,
+  email: string,
+  linkURL: string
 ): Promise<{ error: null | any; success: boolean }> => {
+  const to = email;
+  const template = await getEmail(slug);
+  const subject = template.subject;
+  const text = template.text.replace(/\$linkURL/g, linkURL);
+  const html = template.html.replace(/\$linkURL/g, linkURL);
   try {
     await sendgrid.send({
       to,
@@ -40,31 +45,23 @@ export const mail = async (
   };
 };
 
-export const mailSignup = async (email: string, linkURL: string) => {
-  return mail(
-    email,
-    'SignOn: Verify your E-mail address',
-    `Sign in by going to ${linkURL}`,
-    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
-  );
-};
+export const generateJWT = async (response: SignInResponse): Promise<string> => {
+  const configuration = await getConfiguration('private-key');
 
-export const mailForgotPassword = async (email: string, linkURL: string) => {
-  return mail(
-    email,
-    'SignOn: Forgot Password',
-    `Sign in by going to ${linkURL}`,
-    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
-  );
-};
+  const token = await new Promise<string>((resolve) => {
+    jwt.sign(
+      response,
+      configuration.value,
+      { algorithm: 'RS256' },
+      (err, signed) => {
+        if (err) console.log('jwt generation failed', err);
 
-export const mailWelcome = async (email: string, linkURL: string) => {
-  return mail(
-    email,
-    'Welcome to SignOn',
-    `Sign in by going to ${linkURL}`,
-    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
-  );
+        resolve(signed || '');
+      }
+    );
+  });
+
+  return token;
 };
 
 export const getAllGroups = async () => {

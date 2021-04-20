@@ -80,7 +80,7 @@ const Users: FC = () => {
     }).then(({ error }) => {
       if (!error) history.push('/users');
     });
-  }, [history, query, users, user, request]);
+  }, [history, query, users, request]);
 
   const removeGroup = useCallback(
     (group: string) => {

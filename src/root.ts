@@ -64,6 +64,12 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
     return response.end();
   }
 
+  if (result.type === 'key') {
+    response.writeHead(200);
+
+    return response.end(result.key);
+  }
+
   if (result.type === 'redirect') {
     response.writeHead(302, { Location: result.location });
 
@@ -81,7 +87,7 @@ const get = (url: string, cookies: Cookies) => {
 
   if (url === '/') return null;
 
-  if (url === '/public-key') return publicKey();
+  if (url === '/public-key.json') return publicKey();
 
   if (url.indexOf('/google-redirect?') === 0) {
     if (typeof params.redirect !== 'string') return missingFields;

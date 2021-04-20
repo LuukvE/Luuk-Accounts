@@ -3,11 +3,27 @@ import { credential, initializeApp, ServiceAccount } from 'firebase-admin';
 
 import service from '../google-service.json';
 
-import { User, Session, Group, Link } from './types';
+import { User, Session, Group, Link, Configuration, Email } from './types';
 
-const firestore = initializeApp({
+export const firestore = initializeApp({
   credential: credential.cert(service as ServiceAccount)
 }).firestore();
+
+export const getConfiguration = async (slug: string): Promise<Configuration> => {
+  const document = firestore.doc(`configurations/${slug}`);
+  const snapshot = await document.get();
+  const configuration = snapshot.data() as Configuration;
+
+  return configuration;
+};
+
+export const getEmail = async (slug: string): Promise<Email> => {
+  const document = firestore.doc(`emails/${slug}`);
+  const snapshot = await document.get();
+  const email = snapshot.data() as Email;
+
+  return email;
+};
 
 export const getUser = async (email: string): Promise<User | null> => {
   const document = firestore.doc(`users/${email}`);

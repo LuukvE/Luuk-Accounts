@@ -2,10 +2,10 @@
 
 export type User = {
   email: string;
+  name: string;
+  groups: string[];
   password: string | null;
   google: string | null;
-  groups: string[];
-  name: string;
   picture: string | null;
   created: Date;
 };
@@ -86,7 +86,7 @@ export type RedirectResponse = {
 
 export type SignInResponse = {
   type: 'sign-in';
-  token: string;
+  token?: string;
   permissions: string[];
   email: string;
   name: string;
