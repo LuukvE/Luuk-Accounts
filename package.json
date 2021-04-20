@@ -30,7 +30,8 @@
     "typescript": "^4.2.3"
   },
   "scripts": {
-    "start": "nodemon src"
+    "start": "nodemon src",
+    "setup": "npx ts-node src/setup"
   },
   "nodemonConfig": {
     "watch": [

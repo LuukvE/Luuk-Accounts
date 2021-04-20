@@ -128,7 +128,7 @@ const Landing: FC = () => {
             className="github-link"
             target="_blank"
             rel="noopener noreferrer"
-            href="https://github.com/LuukvE/Auth"
+            href="https://github.com/LuukvE/Luuk-Accounts"
           >
             Open Source Account System
           </a>
@@ -141,7 +141,7 @@ const Landing: FC = () => {
             Luuk Accounts is an open source account system written in TypeScript. It is meant for
             developers that want to focus on building their other services, without losing control
             of user authentication and authorization. You can download this software directly from{' '}
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Luuk-Accounts">
               Github
             </a>
             . It can be easily integrated with the APIs that power your business.
@@ -162,7 +162,7 @@ const Landing: FC = () => {
             <li>Complete freedom in designing the interface you want your users to experience</li>
             <li>
               Absolute flexibility in delivering features and solving bugs, you have all the{' '}
-              <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">
+              <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Luuk-Accounts">
                 source code
               </a>
             </li>

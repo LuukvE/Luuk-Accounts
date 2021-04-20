@@ -30,7 +30,7 @@ A complete authentication and user management solution.
 ```typescript
 // Database Objects
 
-export type User = {
+type User = {
   email: string;
   name: string;
   groups: string[];
@@ -40,24 +40,23 @@ export type User = {
   created: Date;
 };
 
-export type Group = {
+type Group = {
   slug: string;
   permissions: string[];
   owner: string;
   parent: string | null;
   name: string;
-  description: string;
   created: Date;
 };
 
-export type Session = {
+type Session = {
   id: string;
   user: string;
   expired: Date | null;
   created: Date;
 };
 
-export type Link = {
+type Link = {
   id: string;
   name: string;
   email: string;
@@ -67,54 +66,37 @@ export type Link = {
   created: Date;
 };
 
-export type Log = {
-  id: string;
-  user: string | null;
-  group: string | null;
-  session: string | null;
-  link: string | null;
-  type: string;
-  action: string;
-  detail: string;
-  created: Date;
-};
-
-export type Permission = {
-  slug: string;
-  description: string;
-};
-
-export type Email = {
+type Email = {
   slug: string;
   subject: string;
   html: string;
   text: string;
 };
 
-export type Configuration = {
+type Configuration = {
   slug: string;
   value: string;
 };
 
 // Response Objects
 
-export type KeyResponse = {
+type KeyResponse = {
   type: 'key';
   key: string;
 };
 
-export type ErrorResponse = {
+type ErrorResponse = {
   type: 'error';
   status: number;
   message: string;
 };
 
-export type RedirectResponse = {
+type RedirectResponse = {
   type: 'redirect';
   location: string;
 };
 
-export type SignInResponse = {
+type SignInResponse = {
   type: 'sign-in';
   token?: string;
   permissions: string[];
@@ -125,13 +107,12 @@ export type SignInResponse = {
   google: boolean;
 };
 
-export type LoadResponse = {
+type LoadResponse = {
   type: 'load';
   ownedGroups: {
     slug: string;
     parent: string | null;
     name: string;
-    description: string;
     created: Date;
   }[];
   users: {
@@ -145,7 +126,7 @@ export type LoadResponse = {
 };
 
 // Request Body
-export type RequestBody = null | {
+type RequestBody = null | {
   name?: string;
   email?: string;
   groups?: string[];

@@ -4,6 +4,8 @@ import crypto from 'crypto';
 
 import { firestore } from './database';
 
+if (!process.argv[2]) throw 'ERROR - Provide the email of the root user';
+
 (async () => {
   const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
@@ -68,6 +70,14 @@ import { firestore } from './database';
       subject: 'Welcome to Luuk Accounts',
       text: 'Sign in by going to $linkURL',
       html: 'Sign in by going to <a href="$linkURL">$linkURL</a>'
+    }),
+    firestore.doc(`groups/root`).set({
+      slug: 'root',
+      permissions: ['administrator'],
+      owner: 'administrator',
+      parent: null,
+      name: 'Administrators',
+      created: new Date()
     })
   ]);
 })();

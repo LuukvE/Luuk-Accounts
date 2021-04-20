@@ -3,8 +3,8 @@ import Cookies from 'cookies';
 import querystring from 'querystring';
 import { IncomingMessage, ServerResponse } from 'http';
 
-import { methodNotAllowed, missingFields } from './constants';
 import { RequestBody } from './types';
+import { methodNotAllowed, missingFields } from './constants';
 import {
   load,
   setMe,
@@ -20,11 +20,28 @@ import {
   googleRedirect
 } from './handlers';
 
+import { getConfiguration } from './database';
+
+const origins = [];
+
+getConfiguration('allowed-origins').then((config) => {
+  config.value.split(',').forEach((origin) => origins.push(origin));
+});
+
+const keys = [];
+
+getConfiguration('cookie-signature-keys').then((config) => {
+  config.value.split(',').forEach((key) => keys.push(key));
+});
+
 const root = async (request: IncomingMessage, response: ServerResponse, body: RequestBody) => {
-  const cookies = new Cookies(request, response, { keys: ['abc', 'def'] });
+  if (!keys.length) return response.end();
+
+  const cookies = new Cookies(request, response, { keys });
+
   const { url, method, headers } = request;
 
-  if (headers.origin && ![process.env.CLIENT_URL].includes(headers.origin)) {
+  if (headers.origin && !origins.includes(headers.origin)) {
     response.writeHead(403);
 
     return response.end();
@@ -32,13 +49,15 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
 
   response.setHeader('Content-Type', 'application/json');
 
-  response.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (headers.origin) {
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  response.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
+    response.setHeader('Access-Control-Allow-Origin', headers.origin);
 
-  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  }
 
   if (request.method === 'OPTIONS') {
     response.writeHead(200);

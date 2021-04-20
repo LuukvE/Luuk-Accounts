@@ -16,7 +16,6 @@ export type Group = {
   owner: string;
   parent: string | null;
   name: string;
-  description: string;
   created: Date;
 };
 
@@ -35,23 +34,6 @@ export type Link = {
   redirect: string;
   expired: Date | null;
   created: Date;
-};
-
-export type Log = {
-  id: string;
-  user: string | null;
-  group: string | null;
-  session: string | null;
-  link: string | null;
-  type: string;
-  action: string;
-  detail: string;
-  created: Date;
-};
-
-export type Permission = {
-  slug: string;
-  description: string;
 };
 
 export type Email = {
@@ -101,7 +83,6 @@ export type LoadResponse = {
     slug: string;
     parent: string | null;
     name: string;
-    description: string;
     created: Date;
   }[];
   users: {
