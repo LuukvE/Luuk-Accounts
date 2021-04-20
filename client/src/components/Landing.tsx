@@ -138,7 +138,7 @@ const Landing: FC = () => {
         <div>
           <h3>Introduction</h3>
           <p>
-            SignOn is an open source account system written in TypeScript. It is meant for
+            Luuk Accounts is an open source account system written in TypeScript. It is meant for
             developers that want to focus on building their other services, without losing control
             of user authentication and authorization. You can download this software directly from{' '}
             <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">

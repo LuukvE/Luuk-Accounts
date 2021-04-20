@@ -53,19 +53,19 @@ import { firestore } from './database';
     }),
     firestore.doc(`emails/sign-up`).set({
       slug: 'sign-up',
-      subject: 'SignOn: Verify your e-mail address',
+      subject: 'Luuk Accounts: Verify your e-mail address',
       text: 'Sign in by going to $linkURL',
       html: 'Sign in by going to <a href="$linkURL">$linkURL</a>'
     }),
     firestore.doc(`emails/forgot-password`).set({
       slug: 'forgot-password',
-      subject: 'SignOn: Forgot Password',
+      subject: 'Luuk Accounts: Forgot Password',
       text: 'Sign in by going to $linkURL',
       html: 'Sign in by going to <a href="$linkURL">$linkURL</a>'
     }),
     firestore.doc(`emails/welcome`).set({
       slug: 'welcome',
-      subject: 'Welcome to SignOn',
+      subject: 'Welcome to Luuk Accounts',
       text: 'Sign in by going to $linkURL',
       html: 'Sign in by going to <a href="$linkURL">$linkURL</a>'
     })

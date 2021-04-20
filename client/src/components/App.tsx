@@ -31,7 +31,7 @@ const App: FC = () => {
             history.push('/');
           }}
         >
-          SignOn
+          Luuk Accounts
         </h1>
         {user && (
           <>

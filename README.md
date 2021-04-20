@@ -1,4 +1,4 @@
-# Auth
+# Luuk Accounts
 
 A complete authentication and user management solution.
 
