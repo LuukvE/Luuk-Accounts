@@ -1,4 +1,4 @@
-export type OwnedGroup = {
+export type Group = {
   slug: string;
   parent?: string;
   name: string;
@@ -16,7 +16,7 @@ export type User = {
 };
 
 export type Hiarchy = {
-  group: OwnedGroup;
+  group: Group;
   children: Hiarchy;
   users: User[];
 }[];
@@ -37,6 +37,6 @@ export type State = {
         picture?: string;
         permissions: string[];
       };
-  ownedGroups: OwnedGroup[];
+  ownedGroups: Group[];
   users: User[];
 };

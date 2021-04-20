@@ -468,7 +468,7 @@ export const setUser = async (
 
   if (groups.find((group) => !ownedGroupSlugs.includes(group))) return notAuthorized;
 
-  if (!['', 'welcome', 'forgot-password'].includes(sendEmail)) return notAuthorized;
+  if (!['', 'welcome'].includes(sendEmail)) return notAuthorized;
 
   if (!email.includes('@')) return missingFields;
 
@@ -511,8 +511,6 @@ export const setUser = async (
   });
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
-
-  if (sendEmail === 'forgot-password') await mailForgotPassword(userUpdate.email, linkURL);
 
   if (sendEmail === 'welcome') await mailWelcome(userUpdate.email, linkURL);
 

@@ -37,7 +37,7 @@ const App: FC = () => {
         </h1>
         {user && (
           <>
-            <NavLink to="/landing">Introduction</NavLink>
+            <NavLink to="/">Introduction</NavLink>
             <NavLink to="/users">Users</NavLink>
           </>
         )}
@@ -65,7 +65,6 @@ const App: FC = () => {
           <Redirect to="/" />
         </Switch>
       )}
-
       <iframe title="auth-frame" name="auth-frame" id="auth-frame" />
     </div>
   );

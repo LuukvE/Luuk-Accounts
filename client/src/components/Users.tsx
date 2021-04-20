@@ -11,7 +11,7 @@ import Form from 'react-bootstrap/Form';
 import { useSelector } from '../store';
 import useAuth from '../hooks/useAuth';
 import useQuery from '../hooks/useQuery';
-import { Hiarchy, OwnedGroup } from '../types';
+import { Hiarchy, Group } from '../types';
 
 const GroupBlock: FC<{ index: number; hiarchy: Hiarchy }> = ({ index, hiarchy }) => {
   const history = useHistory();
@@ -102,7 +102,7 @@ const Users: FC = () => {
   );
 
   const hiarchy: Hiarchy = useMemo(() => {
-    const groups = ownedGroups.reduce((obj: { [slug: string]: OwnedGroup }, ownedGroup) => {
+    const groups = ownedGroups.reduce((obj: { [slug: string]: Group }, ownedGroup) => {
       obj[ownedGroup.slug] = ownedGroup;
 
       return obj;
@@ -112,7 +112,7 @@ const Users: FC = () => {
       return !ownedGroup.parent || !groups[ownedGroup.parent];
     });
 
-    const getHiarchy = (hiarchy: Hiarchy, parents: OwnedGroup[]) => {
+    const getHiarchy = (hiarchy: Hiarchy, parents: Group[]) => {
       return parents.reduce((hiarchy: Hiarchy, group) => {
         const children = ownedGroups.filter((child) => {
           return child.parent === group.slug;
@@ -221,16 +221,6 @@ const Users: FC = () => {
                   }}
                   type="checkbox"
                   label="Send welcome mail"
-                />
-              </Form.Group>
-              <Form.Group controlId="sendForgotPassword">
-                <Form.Check
-                  checked={query.sendEmail === 'forgot-password'}
-                  onChange={(e) => {
-                    setQuery({ sendEmail: e.target.checked ? 'forgot-password' : '' });
-                  }}
-                  type="checkbox"
-                  label="Send forgot password mail"
                 />
               </Form.Group>
               <Button block type="submit" variant="success">
