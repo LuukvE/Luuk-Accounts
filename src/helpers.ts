@@ -48,20 +48,13 @@ export const mail = async (
 export const generateJWT = async (response: SignInResponse): Promise<string> => {
   const configuration = await getConfiguration('private-key');
 
-  const token = await new Promise<string>((resolve) => {
-    jwt.sign(
-      response,
-      configuration.value,
-      { algorithm: 'RS256' },
-      (err, signed) => {
-        if (err) console.log('jwt generation failed', err);
+  return new Promise<string>((resolve) => {
+    jwt.sign(response, configuration.value, { algorithm: 'RS256' }, (err, signed) => {
+      if (err) console.log('jwt generation failed', err);
 
-        resolve(signed || '');
-      }
-    );
+      resolve(signed || '');
+    });
   });
-
-  return token;
 };
 
 export const getAllGroups = async () => {
