@@ -20,11 +20,17 @@ A complete authentication and user management solution.
 - Email addresses are case-insensitive
 - Cookies are protected against forgery using a signature cookie
 - Requests from an allowed origin return CORS headers with that origin
+- Groups can _(optionally)_ be nested in other groups, forming a hiarchy
+- Users get the permissions attached to the groups they are in and the groups nested inside of them
+- The group owner property refers to a permission required to add or remove users from that group
+- Links are used to sign up and sign in a user when they follow the link from their e-mail client
 
-## Database
+## Types
 
 ```typescript
-type User = {
+// Database Objects
+
+export type User = {
   email: string;
   name: string;
   groups: string[];
@@ -34,35 +40,24 @@ type User = {
   created: Date;
 };
 
-// Groups form a hierarchy in two ways:
-// - Groups share their permissions with all their parents
-// - Users that have the "owner" permission of another group (ownedGroup) can:
-//   - View all ownedGroups and their children
-//   - Create new users as long as they do not exist
-//   - Add or remove ownedGroups or their children from all users
-//   - Send welcome emails to users in their ownedGroups or their children
-
-// The most powerful groups are at the top of the hiarchy, the least powerful are at the bottom
-
-type Group = {
+export type Group = {
   slug: string;
-  name: string;
-  owner: string; // permission slug
-  parent: string | null; // group slug
   permissions: string[];
+  owner: string;
+  parent: string | null;
+  name: string;
   description: string;
   created: Date;
 };
 
-type Session = {
+export type Session = {
   id: string;
   user: string;
   expired: Date | null;
   created: Date;
 };
 
-// Links are used to directly sign up and sign in a user
-type Link = {
+export type Link = {
   id: string;
   name: string;
   email: string;
@@ -72,73 +67,73 @@ type Link = {
   created: Date;
 };
 
-type Log = {
+export type Log = {
   id: string;
-  user?: string;
-  group?: string;
-  session?: string;
-  link?: string;
-  type: string; // system-error, user-error, user-created, user-updated, session-created, user-signed-in, email-sent
+  user: string | null;
+  group: string | null;
+  session: string | null;
+  link: string | null;
+  type: string;
   action: string;
   detail: string;
   created: Date;
 };
 
-// These are email templates
-type Email = {
-  slug: string; // sign-up, forgot-password, welcome
+export type Permission = {
+  slug: string;
+  description: string;
+};
+
+export type Email = {
+  slug: string;
   subject: string;
   html: string;
   text: string;
 };
 
-type Configuration = {
-  slug: string; // private-key, public-key, allowed-origins, cookie-signature-keys
+export type Configuration = {
+  slug: string;
   value: string;
 };
-```
 
-## Response Types
+// Response Objects
 
-```typescript
-type KeyResponse = {
+export type KeyResponse = {
   type: 'key';
   key: string;
 };
 
-type ErrorResponse = {
+export type ErrorResponse = {
   type: 'error';
   status: number;
   message: string;
 };
 
-type RedirectResponse = {
+export type RedirectResponse = {
   type: 'redirect';
   location: string;
 };
 
-type SignInResponse = {
+export type SignInResponse = {
   type: 'sign-in';
-  name: string;
-  token: string;
-  email: string;
-  picture: string;
-  google: boolean;
-  password: boolean;
+  token?: string;
   permissions: string[];
+  email: string;
+  name: string;
+  picture: string;
+  password: boolean;
+  google: boolean;
 };
 
-type LoadResponse = {
+export type LoadResponse = {
   type: 'load';
-  // All ownedGroups and their children
-  groups: {
+  ownedGroups: {
     slug: string;
-    parent: string | null; // group slug
+    parent: string | null;
     name: string;
     description: string;
     created: Date;
   }[];
-  // All users part of ownedGroups and their children
   users: {
     email: string;
     name: string;
@@ -148,12 +143,9 @@ type LoadResponse = {
     groups: string[];
   }[];
 };
-```
 
-## Request Body
-
-```typescript
-type RequestBody = null | {
+// Request Body
+export type RequestBody = null | {
   name?: string;
   email?: string;
   groups?: string[];
