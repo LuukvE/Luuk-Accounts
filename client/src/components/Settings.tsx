@@ -31,17 +31,17 @@ const Settings: FC = () => {
   return (
     <main className="Settings">
       <h3>Account Settings</h3>
-      <Form.Control
-        placeholder="Name"
-        id="name"
-        name="name"
-        type="text"
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-      />
       <form method="post" action="about:blank" target="auth-frame" onSubmit={saveAccountSettings}>
+        <Form.Control
+          placeholder="Name"
+          id="name"
+          name="name"
+          type="text"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
         <Form.Control
           placeholder="Email"
           id="username"
@@ -60,7 +60,7 @@ const Settings: FC = () => {
             setPassword(e.target.value);
           }}
         />
-        <Button variant="success" type="submit" disabled={!password && user?.name === name}>
+        <Button block variant="success" type="submit" disabled={!password && user?.name === name}>
           {loading ? <Spinner animation="border" /> : 'Save'}
         </Button>
       </form>

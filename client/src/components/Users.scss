@@ -64,9 +64,13 @@
 
     .user {
       padding-left: 30px;
-      margin-top: 15px;
       display: flex;
       align-items: center;
+      border-top: 1px solid #ddd;
+      line-height: 3;
+      ~ .children {
+        margin-top: 5px;
+      }
       .btn-link {
         margin-right: 4px;
         color: #aaa;
@@ -80,14 +84,14 @@
     }
 
     .children {
-      margin: 12px 0 0 30px;
+      margin: 0 0 0 30px;
       &:empty {
         display: none;
       }
     }
   }
 
-  > .owned-group {
+  > .owned-group:last-of-type {
     border-bottom: 1px solid #ccc;
   }
 }
@@ -100,6 +104,10 @@
     > div {
       display: flex;
       align-items: center;
+      margin-bottom: 12px;
+      &:last-of-type {
+        margin-bottom: 0;
+      }
       .btn-danger {
         margin-left: auto;
         display: flex;

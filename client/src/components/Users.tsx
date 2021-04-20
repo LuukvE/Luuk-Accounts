@@ -61,11 +61,13 @@ const Users: FC = () => {
   const { user } = useParams<{ user?: string; group?: string }>();
 
   const addUser = useCallback(() => {
-    const update = users.find((u) => u.email === user);
-
     const { email, name, group, sendEmail } = query;
 
-    const groups = update?.groups || [];
+    if (!email || !group) return;
+
+    const update = users.find((u) => u.email === email);
+
+    const groups = update?.groups.slice() || [];
 
     groups.push(group);
 
