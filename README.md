@@ -47,7 +47,7 @@ type Group = {
   created: Date;
 };
 
-// All objects below are exclusively managed and visible to users with permission: root-admin
+// All objects below are exclusively managed through FireStore UI
 
 type Session = {
   id: string;
@@ -151,13 +151,6 @@ type LoadResponse = {
     picture: string;
     groups: string[];
   }[];
-  // All properties below are only loaded with root-admin permission
-  permissions?: Permission[];
-  sessions?: Session[];
-  links?: Link[];
-  logs?: Log[];
-  emails?: Email[];
-  configurations?: Configuration[];
 };
 ```
 
@@ -284,9 +277,8 @@ const manualSignIn = (
 
 // POST /load
 const load = (cookies: Cookies): ErrorResponse | LoadResponse => {
+  // Find all ownedGroups
   // Find all users part of ownedGroups or their children
-  // If thisUser permissions don't include root-admin, return response
-  // Find all non-expired objects that are not users or groups
   // Return response
 };
 

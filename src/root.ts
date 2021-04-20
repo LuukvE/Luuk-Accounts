@@ -6,32 +6,31 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { methodNotAllowed, missingFields } from './constants';
 import { RequestBody } from './types';
 import {
+  load,
+  setMe,
+  setUser,
+  signOut,
   publicKey,
   autoSignIn,
+  signInLink,
   manualSignIn,
+  googleSignIn,
   manualSignUp,
   forgotPassword,
-  signInLink,
-  googleSignIn,
-  googleRedirect,
-  signOut,
-  load,
-  setUser,
-  setObject,
-  setMe
+  googleRedirect
 } from './handlers';
 
 const root = async (request: IncomingMessage, response: ServerResponse, body: RequestBody) => {
   const cookies = new Cookies(request, response, { keys: ['abc', 'def'] });
   const { url, method, headers } = request;
 
-  response.setHeader('Content-Type', 'application/json');
-
   if (headers.origin && ![process.env.CLIENT_URL].includes(headers.origin)) {
     response.writeHead(403);
 
     return response.end();
   }
+
+  response.setHeader('Content-Type', 'application/json');
 
   response.setHeader('Access-Control-Allow-Credentials', 'true');
 
@@ -154,38 +153,17 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
   }
 
   if (url === '/set-user') {
-    const { id, email, sendEmail, groups, name, password } = body;
+    const { email, sendEmail, groups, name, redirect } = body;
 
-    if (
-      [id, email, sendEmail, name, password].find(
-        (prop) => !['string', 'undefined'].includes(typeof prop)
-      )
-    ) {
+    if ([email, name, sendEmail, redirect].find((prop) => typeof prop !== 'string')) {
       return missingFields;
     }
 
-    if (
-      typeof groups !== 'undefined' &&
-      (!(groups instanceof Array) || groups.find((group) => typeof group !== 'string'))
-    ) {
+    if (!(groups instanceof Array) || groups.find((group) => typeof group !== 'string')) {
       return missingFields;
     }
 
-    return setUser(cookies, id, email, sendEmail, groups, name, password);
-  }
-
-  if (url === '/set-object') {
-    const { object, collection, remove } = body;
-
-    if (
-      !object ||
-      typeof collection !== 'string' ||
-      (remove !== undefined && typeof remove !== 'boolean')
-    ) {
-      return missingFields;
-    }
-
-    return setObject(cookies, collection, object, remove);
+    return setUser(cookies, email, groups, name, sendEmail, redirect);
   }
 };
 

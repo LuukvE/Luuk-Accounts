@@ -4,9 +4,20 @@
   padding: 16px 16px 0;
   display: flex;
   flex-wrap: wrap;
-  background: white;
   flex-grow: 1;
   align-content: flex-start;
+
+  &.has-content {
+    background: white;
+  }
+
+  > h3 {
+    display: flex;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px;
+    color: #555;
+  }
 
   .owned-group {
     width: 100%;
@@ -30,7 +41,7 @@
       color: #555;
       background: #e6e6e6;
       align-items: center;
-      padding: 10px 10px 10px 0;
+      padding: 10px 10px 10px 30px;
       margin: 0;
       border-bottom: 1px solid #ddd;
 
@@ -78,5 +89,61 @@
 
   > .owned-group {
     border-bottom: 1px solid #ccc;
+  }
+}
+
+.edit-user-modal {
+  &.show .modal-dialog {
+    margin-top: 75px;
+  }
+  .modal-body {
+    > div {
+      display: flex;
+      align-items: center;
+      .btn-danger {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 31px;
+        .spinner-border {
+          width: 20px;
+          height: 20px;
+          font-size: 10px;
+        }
+      }
+    }
+    form {
+      font-weight: normal;
+      > input {
+        margin: 20px 0 0;
+      }
+      .btn {
+        margin-top: 20px;
+        .spinner-border {
+          width: 20px;
+          height: 20px;
+          font-size: 10px;
+        }
+      }
+    }
+    .form-check {
+      margin: 20px 0 0 2px;
+      padding-left: 20px;
+      user-select: none;
+      text-align: center;
+      .form-check-input {
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+      }
+      label {
+        font-weight: 500;
+        cursor: pointer;
+        padding-left: 6px;
+        line-height: 30px;
+      }
+    }
   }
 }

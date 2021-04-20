@@ -13,6 +13,8 @@ const useAuth = () => {
     async (url: string, body?: any) => {
       setLoading(true);
 
+      dispatch(actions.changeRequests(1));
+
       dispatch(
         actions.set({
           error: null
@@ -38,6 +40,8 @@ const useAuth = () => {
         const response = await res.json();
 
         setLoading(false);
+
+        dispatch(actions.changeRequests(-1));
 
         if (res.status >= 300) {
           dispatch(
@@ -72,6 +76,8 @@ const useAuth = () => {
         if (signal.aborted) return { aborted: true };
 
         setLoading(false);
+
+        dispatch(actions.changeRequests(-1));
 
         return { error };
       }

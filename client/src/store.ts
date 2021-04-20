@@ -4,6 +4,7 @@ import { configureStore, getDefaultMiddleware, createSlice } from '@reduxjs/tool
 import { State } from './types';
 
 const initialState: State = {
+  requests: 0,
   error: null,
   user: null,
   ownedGroups: [],
@@ -14,7 +15,10 @@ export const { actions, reducer } = createSlice({
   name: 'store',
   initialState,
   reducers: {
-    set: (state, action) => ({ ...state, ...action.payload })
+    set: (state, action) => ({ ...state, ...action.payload }),
+    changeRequests: (state, action) => {
+      state.requests += action.payload;
+    }
   }
 });
 

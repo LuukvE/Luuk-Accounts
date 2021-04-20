@@ -1,11 +1,15 @@
 import './Users.scss';
-import React, { FC, useMemo } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import Select from 'react-select/creatable';
+import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Badge from 'react-bootstrap/Badge';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 
 import { useSelector } from '../store';
+import useAuth from '../hooks/useAuth';
 import useQuery from '../hooks/useQuery';
 import { Hiarchy, OwnedGroup } from '../types';
 
@@ -16,15 +20,6 @@ const GroupBlock: FC<{ index: number; hiarchy: Hiarchy }> = ({ index, hiarchy })
   return (
     <div className="owned-group">
       <h3>
-        <Button
-          onClick={() => {
-            history.push(`/users/group/${group.slug}`);
-          }}
-          size="sm"
-          variant="link"
-        >
-          <i className="fas fa-cog" />
-        </Button>
         {group.name}
         <Button
           onClick={() => {
@@ -59,11 +54,52 @@ const GroupBlock: FC<{ index: number; hiarchy: Hiarchy }> = ({ index, hiarchy })
 };
 
 const Users: FC = () => {
-  // const dispatch = useDispatch();
   const history = useHistory();
+  const { request, loading } = useAuth();
   const { query, setQuery } = useQuery();
-  const { ownedGroups, users } = useSelector((state) => state);
-  const { user, group } = useParams<{ user?: string; group?: string }>();
+  const { ownedGroups, users, requests } = useSelector((state) => state);
+  const { user } = useParams<{ user?: string; group?: string }>();
+
+  const addUser = useCallback(() => {
+    const update = users.find((u) => u.email === user);
+
+    const { email, name, group, sendEmail } = query;
+
+    const groups = update?.groups || [];
+
+    groups.push(group);
+
+    request('/set-user', {
+      email: update?.email || email,
+      name: update?.name || name,
+      groups: groups,
+      sendEmail: sendEmail || '',
+      redirect: window.location.href.split('/').slice(0, 3).join('/')
+    }).then(({ error }) => {
+      if (!error) history.push('/users');
+    });
+  }, [history, query, users, user, request]);
+
+  const removeGroup = useCallback(
+    (group: string) => {
+      const update = users.find((u) => u.email === user);
+
+      if (!update) return;
+
+      const groups = update.groups.filter((g) => g !== group);
+
+      request('/set-user', {
+        email: update.email,
+        name: update.name,
+        groups,
+        sendEmail: '',
+        redirect: window.location.href.split('/').slice(0, 3).join('/')
+      }).then(() => {
+        if (!groups.length) history.push('/users');
+      });
+    },
+    [history, users, user, request]
+  );
 
   const hiarchy: Hiarchy = useMemo(() => {
     const groups = ownedGroups.reduce((obj: { [slug: string]: OwnedGroup }, ownedGroup) => {
@@ -94,35 +130,115 @@ const Users: FC = () => {
 
     const hiarchy = getHiarchy([], root);
 
-    console.log(hiarchy);
-
     return hiarchy;
   }, [users, ownedGroups]);
 
   return (
-    <div className="Users">
+    <div className={`Users${hiarchy.length ? ' has-content' : ''}`}>
+      {hiarchy.length === 0 && requests === 0 && (
+        <h3>Your account has no access to any user groups</h3>
+      )}
       {hiarchy.map((child, index) => (
         <GroupBlock index={index} key={index} hiarchy={hiarchy} />
       ))}
       <Modal
-        className="modal"
+        className="modal edit-user-modal"
         show={!!user}
         onHide={() => {
           history.push('/users');
         }}
       >
-        <Modal.Header closeButton>{user === 'new' ? 'Add' : 'Edit'} User</Modal.Header>
-        <Modal.Body>A user</Modal.Body>
-      </Modal>
-      <Modal
-        className="modal"
-        show={!!group}
-        onHide={() => {
-          history.push('/users');
-        }}
-      >
-        <Modal.Header closeButton>{group === 'new' ? 'Add' : 'Edit'} Group</Modal.Header>
-        <Modal.Body>A group</Modal.Body>
+        <Modal.Header closeButton>{user === 'new' ? 'Add User' : `Edit ${user}`}</Modal.Header>
+        <Modal.Body>
+          {user !== 'new' &&
+            users
+              .find((u) => u.email === user)
+              ?.groups.map((slug, index) => {
+                const group = ownedGroups.find((ownedGroup) => ownedGroup.slug === slug);
+
+                if (!group) return null;
+
+                return (
+                  <div key={index}>
+                    {group.name}{' '}
+                    <Button
+                      onClick={() => {
+                        removeGroup(group.slug);
+                      }}
+                      variant="danger"
+                      size="sm"
+                    >
+                      {loading ? <Spinner animation="border" /> : 'Remove'}
+                    </Button>
+                  </div>
+                );
+              })}
+          {user === 'new' && (
+            <form method="post" action="about:blank" target="auth-frame" onSubmit={addUser}>
+              <Select
+                value={
+                  query.email
+                    ? {
+                        value: {
+                          email: query.email,
+                          name: query.setName || ''
+                        },
+                        label: `${query.setName ? `${query.setName}: ` : ''}${query.email}`
+                      }
+                    : null
+                }
+                onCreateOption={(email) => {
+                  setQuery({ email, setName: '' });
+                }}
+                formatCreateLabel={(input) => `Add E-mail: ${input}`}
+                onChange={(option) => {
+                  setQuery({
+                    setName: option?.value.name || '',
+                    email: option?.value.email
+                  });
+                }}
+                placeholder={<span className="email-placeholder">E-mail</span>}
+                options={users
+                  .filter((user) => !user.groups.includes(query.group))
+                  .map((user) => ({
+                    label: `${user.name ? `${user.name}: ` : ''}${user.email}`,
+                    value: { email: user.email, name: user.name || '' }
+                  }))}
+              />
+              {!query.setName && (
+                <Form.Control
+                  placeholder="Name (optional)"
+                  type="text"
+                  value={query.name || ''}
+                  onChange={(e) => setQuery({ name: e.target.value })}
+                />
+              )}
+              <Form.Group controlId="sendWelcome">
+                <Form.Check
+                  checked={query.sendEmail === 'welcome'}
+                  onChange={(e) => {
+                    setQuery({ sendEmail: e.target.checked ? 'welcome' : '' });
+                  }}
+                  type="checkbox"
+                  label="Send welcome mail"
+                />
+              </Form.Group>
+              <Form.Group controlId="sendForgotPassword">
+                <Form.Check
+                  checked={query.sendEmail === 'forgot-password'}
+                  onChange={(e) => {
+                    setQuery({ sendEmail: e.target.checked ? 'forgot-password' : '' });
+                  }}
+                  type="checkbox"
+                  label="Send forgot password mail"
+                />
+              </Form.Group>
+              <Button block type="submit" variant="success">
+                {loading ? <Spinner animation="border" /> : 'Add user'}
+              </Button>
+            </form>
+          )}
+        </Modal.Body>
       </Modal>
     </div>
   );

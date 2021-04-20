@@ -22,6 +22,7 @@ export type Hiarchy = {
 }[];
 
 export type State = {
+  requests: number;
   error: null | {
     type: string;
     status: number;
@@ -34,6 +35,7 @@ export type State = {
         name: string;
         email: string;
         picture?: string;
+        permissions: string[];
       };
   ownedGroups: OwnedGroup[];
   users: User[];

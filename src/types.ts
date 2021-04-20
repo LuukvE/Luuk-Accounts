@@ -112,13 +112,6 @@ export type LoadResponse = {
     picture: string;
     groups: string[];
   }[];
-  groups?: Group[];
-  permissions?: Permission[];
-  sessions?: Session[];
-  links?: Link[];
-  logs?: Log[];
-  emails?: Email[];
-  configurations?: Configuration[];
 };
 
 // Request Body

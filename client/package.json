@@ -14,6 +14,7 @@
     "@types/react-dom": "16.9.8",
     "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "^5.1.5",
+    "@types/react-select": "^4.0.15",
     "bootstrap": "^4.5.0",
     "date-fns": "^2.19.0",
     "react": "^16.13.1",
@@ -22,6 +23,7 @@
     "react-redux": "^7.2.3",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.2",
+    "react-select": "^4.3.0",
     "react-svg": "^13.0.0",
     "typescript": "~3.9.5"
   },

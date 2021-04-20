@@ -29,6 +29,12 @@ export const wrongCredentials: ErrorResponse = {
   message: 'wrong-credentials'
 };
 
+export const notAuthorized: ErrorResponse = {
+  type: 'error',
+  status: 401,
+  message: 'not-authorized'
+};
+
 export const passwordInsecure: ErrorResponse = {
   type: 'error',
   status: 400,

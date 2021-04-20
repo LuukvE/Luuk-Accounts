@@ -20,10 +20,8 @@ const App: FC = () => {
   useEffect(() => {
     if (!user) return;
 
-    request('/load').then(({ response, error }) => {
+    request('/load').then(({ error }) => {
       if (error) return console.log(error);
-
-      console.log(22, response);
     });
   }, [request, user]);
 
@@ -41,8 +39,6 @@ const App: FC = () => {
           <>
             <NavLink to="/landing">Introduction</NavLink>
             <NavLink to="/users">Users</NavLink>
-            <NavLink to="/logs">Logs</NavLink>
-            <NavLink to="/configuration">Configuration</NavLink>
           </>
         )}
         <AuthButton />
@@ -69,6 +65,8 @@ const App: FC = () => {
           <Redirect to="/" />
         </Switch>
       )}
+
+      <iframe title="auth-frame" name="auth-frame" id="auth-frame" />
     </div>
   );
 };

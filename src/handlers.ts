@@ -4,10 +4,7 @@ import { nanoid } from 'nanoid';
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 
-import mail from './mail';
-
 import {
-  getAll,
   getUser,
   getLink,
   getSession,
@@ -19,16 +16,8 @@ import {
 } from './database';
 
 import {
-  Log,
-  User,
-  Link,
-  Group,
-  Email,
-  Session,
-  Permission,
   KeyResponse,
   LoadResponse,
-  Configuration,
   ErrorResponse,
   SignInResponse,
   RedirectResponse
@@ -39,11 +28,20 @@ import {
   ServerError,
   notSignedIn,
   cookieOptions,
+  notAuthorized,
+  missingFields,
   wrongCredentials,
   passwordInsecure
 } from './constants';
 
-import { getPermissions, getOwnedGroups, getAllGroups } from './helpers';
+import {
+  mailSignup,
+  mailWelcome,
+  mailForgotPassword,
+  getAllGroups,
+  getPermissions,
+  getOwnedGroups
+} from './helpers';
 
 // GET /public-key
 export const publicKey = async (): Promise<KeyResponse> => {
@@ -224,7 +222,7 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
 
   const session = await getSession(sessionID);
 
-  if (session.expired) return null;
+  if (!session || session.expired) return null;
 
   const user = await getUser(session.user);
 
@@ -321,12 +319,7 @@ export const manualSignUp = async (
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
-  const { success } = await mail(
-    email,
-    'SignOn: Verify your E-mail address',
-    `Sign in by going to ${linkURL}`,
-    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
-  );
+  const { success } = await mailSignup(email, linkURL);
 
   if (!success) return ServerError;
 
@@ -342,7 +335,6 @@ export const forgotPassword = async (
 
   if (!user) return null;
 
-  // Create a link
   const link = await saveLink({
     id: nanoid(),
     name: user.name,
@@ -354,12 +346,7 @@ export const forgotPassword = async (
 
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
-  const { success } = await mail(
-    user.email,
-    'SignOn: Forgot Password',
-    `Sign in by going to ${linkURL}`,
-    `Sign in by going to <a href="${linkURL}">${linkURL}</a>`
-  );
+  const { success } = await mailForgotPassword(user.email, linkURL);
 
   if (!success) return ServerError;
 
@@ -373,6 +360,8 @@ export const signOut = async (cookies: Cookies): Promise<null> => {
   if (!sessionID) return null;
 
   const session = await getSession(sessionID);
+
+  if (!session) return null;
 
   const sessions = await findSessions({ user: session.user, expired: null });
 
@@ -391,7 +380,7 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
 
   const session = await getSession(sessionID);
 
-  if (session.expired) return null;
+  if (!session || session.expired) return null;
 
   const user = await getUser(session.user);
 
@@ -400,6 +389,8 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
   const ownedGroups = await getOwnedGroups(user);
 
   const users = await getUsersInGroups(ownedGroups);
+
+  const groupSlugs = ownedGroups.map((group) => group.slug);
 
   const response: LoadResponse = {
     type: 'load',
@@ -414,18 +405,11 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
       password: !!user.password,
       google: !!user.google,
       picture: user.picture,
-      groups: user.groups
+      groups: user.groups.filter((group) => groupSlugs.includes(group))
     }))
   };
 
-  if (!user.groups.includes('root')) return response;
-
-  const fullResponse = await getAll();
-
-  return {
-    ...fullResponse,
-    ...response
-  };
+  return response;
 };
 
 // POST /set-me
@@ -458,12 +442,11 @@ export const setMe = async (
 // POST /set-user
 export const setUser = async (
   cookies: Cookies,
-  id?: string,
-  email?: string,
-  sendEmail?: string,
-  groups?: string[],
-  name?: string,
-  password?: string
+  email: string,
+  groups: string[],
+  name: string,
+  sendEmail: string,
+  redirect: string
 ): Promise<ErrorResponse | LoadResponse> => {
   const sessionID = cookies.get(cookieName, { signed: true });
 
@@ -471,36 +454,67 @@ export const setUser = async (
 
   const session = await getSession(sessionID);
 
-  if (!session) return notSignedIn;
+  if (!session || session.expired) return notSignedIn;
 
-  // If no ownedGroups were found or any payloadGroups are not part of ownedGroups, return not authorized error
-  // If sendEmail is not undefined, forgot-password or welcome, return not authorized error
-  // If no payloadId or payloadEmail provided, return invalid request error
-  // Find the targetUser using payloadId or payloadEmail, if not found create it with email, name and password
-  // Remove all ownedGroups that are not found in payloadGroups from targetUser
-  // Add all payloadGroups to targetUser groups
-  // If sendEmail is defined, create a link and send email to targetUser
+  const user = await getUser(session.user);
 
-  return load(cookies);
-};
+  if (!user) return notSignedIn;
 
-// POST /set-object
-export const setObject = async (
-  cookies: Cookies,
-  collection: string,
-  object: User | Group | Session | Permission | Link | Log | Email | Configuration,
-  remove?: boolean
-): Promise<ErrorResponse | LoadResponse> => {
-  const sessionID = cookies.get(cookieName, { signed: true });
+  const ownedGroups = await getOwnedGroups(user);
 
-  if (!sessionID) return notSignedIn;
+  const ownedGroupSlugs = ownedGroups.map((group) => group.slug);
 
-  const session = await getSession(sessionID);
+  if (ownedGroups.length === 0) return notAuthorized;
 
-  if (!session) return notSignedIn;
+  if (groups.find((group) => !ownedGroupSlugs.includes(group))) return notAuthorized;
 
-  // For each object type remove all non-expired objects not in the list and add or update all others
-  console.log('updating', collection, object, 'remove?', remove);
+  if (!['', 'welcome', 'forgot-password'].includes(sendEmail)) return notAuthorized;
+
+  if (!email.includes('@')) return missingFields;
+
+  const payloadUser = await getUser(email.toLowerCase());
+
+  const userUpdate =
+    payloadUser ||
+    (await saveUser({
+      email: email.toLowerCase(),
+      name,
+      groups: [],
+      password: null,
+      google: null,
+      picture: null,
+      created: new Date()
+    }));
+
+  const newGroups = userUpdate.groups.filter((group) => {
+    return !ownedGroupSlugs.includes(group) || groups.includes(group);
+  });
+
+  groups.forEach((group) => {
+    if (!newGroups.includes(group)) newGroups.push(group);
+  });
+
+  await saveUser({
+    ...userUpdate,
+    groups: newGroups
+  });
+
+  if (!sendEmail) return load(cookies);
+
+  const link = await saveLink({
+    id: nanoid(),
+    name: userUpdate.name,
+    email: userUpdate.email,
+    redirect,
+    expired: null,
+    created: new Date()
+  });
+
+  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
+
+  if (sendEmail === 'forgot-password') await mailForgotPassword(userUpdate.email, linkURL);
+
+  if (sendEmail === 'welcome') await mailWelcome(userUpdate.email, linkURL);
 
   return load(cookies);
 };

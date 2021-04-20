@@ -3,17 +3,7 @@ import { credential, initializeApp, ServiceAccount } from 'firebase-admin';
 
 import service from '../google-service.json';
 
-import {
-  User,
-  Session,
-  Group,
-  Permission,
-  Link,
-  Log,
-  Email,
-  Configuration,
-  LoadResponse
-} from './types';
+import { User, Session, Group, Link } from './types';
 
 const firestore = initializeApp({
   credential: credential.cert(service as ServiceAccount)
@@ -116,6 +106,8 @@ export const saveGroup = async (group: Group): Promise<Group> => {
 };
 
 export const getUsersInGroups = async (groups: Group[]): Promise<User[]> => {
+  if (!groups.length) return [];
+
   const collection = firestore.collection('users');
   const users: { [email: string]: User } = {};
   const slugs = groups.map((group) => group.slug);
@@ -175,48 +167,4 @@ export const findGroups = async (filter?: { [key: string]: string | null }): Pro
   });
 
   return results;
-};
-
-export const getAll = async (): Promise<LoadResponse> => {
-  const response: LoadResponse = {
-    type: 'load',
-    ownedGroups: [],
-    groups: [],
-    users: [],
-    permissions: [],
-    sessions: [],
-    links: [],
-    logs: [],
-    emails: [],
-    configurations: []
-  };
-
-  const { type, ownedGroups, users, ...collections } = response;
-
-  await Promise.all(
-    Object.keys(collections).map(
-      (collection) =>
-        new Promise(async (resolve) => {
-          let query: any = firestore.collection(collection);
-
-          if (['sessions', 'links'].includes(collection)) {
-            query = query.where('expired', '==', null);
-          }
-
-          const snapshot: QuerySnapshot = await query.get();
-
-          snapshot.forEach((doc) => {
-            let data = doc.data();
-
-            if (data.created) data.created = data.created.toDate();
-
-            response[collection].push(data);
-          });
-
-          resolve(null);
-        })
-    )
-  );
-
-  return response;
 };
