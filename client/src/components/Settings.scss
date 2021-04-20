@@ -1,0 +1,38 @@
+@import '../variables';
+
+.Settings {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  margin: 0 auto;
+  border: 1px solid #dfdfdf;
+  border-radius: 4px;
+  padding: 32px;
+  margin-top: 16px;
+  background: white;
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #555;
+  }
+
+  input {
+    margin-bottom: 10px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .spinner-border {
+      height: 24px;
+      width: 24px;
+      font-size: 10px;
+    }
+  }
+}

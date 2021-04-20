@@ -1,15 +1,13 @@
 import './Groups.scss';
 import React, { FC, useEffect } from 'react';
-import { ReactSVG } from 'react-svg';
-import Form from 'react-bootstrap/Form';
 
 import useAuth from '../hooks/useAuth';
-import { useSelector, useDispatch, actions } from '../store';
+// import { useSelector, useDispatch, actions } from '../store';
 
 const Groups: FC = () => {
-  const dispatch = useDispatch();
-  const { request, loading } = useAuth();
-  const { user, error } = useSelector((state) => state);
+  // const dispatch = useDispatch();
+  const { request } = useAuth();
+  // const { user, error } = useSelector((state) => state);
 
   useEffect(() => {
     request('/load').then(({ response, error }) => {

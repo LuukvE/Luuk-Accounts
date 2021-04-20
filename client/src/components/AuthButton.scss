@@ -68,7 +68,7 @@
     position: absolute;
     z-index: 1;
     top: calc(100% + 20px);
-    right: -22px;
+    right: 0;
     background: #fff;
     border: 1px solid #ccc;
     border-color: rgba(black, 0.2);
@@ -144,7 +144,7 @@
         &.btn-primary {
           background: $green;
           color: white;
-          margin-top: 3px;
+          margin-top: 8px;
           &:hover {
             background: lighten($green, 2);
           }
@@ -214,6 +214,13 @@
       &:hover {
         background-color: #fafafa;
       }
+    }
+
+    .button-group {
+      display: flex;
+      width: 100%;
+      padding: 0 12px;
+      justify-content: space-between;
     }
   }
 }

@@ -1,6 +1,7 @@
 import './AuthButton.scss';
 import React, { FC, useEffect, useState, useLayoutEffect, useRef, useCallback } from 'react';
 import { ReactSVG } from 'react-svg';
+import { useHistory } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -12,6 +13,7 @@ import useAuth from '../hooks/useAuth';
 import { useSelector, useDispatch, actions } from '../store';
 
 const AuthButton: FC = () => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const userAvatar = useRef<null | HTMLImageElement>(null);
   const userPicture = useRef<null | HTMLImageElement>(null);
@@ -20,7 +22,6 @@ const AuthButton: FC = () => {
   const { user, error } = useSelector((state) => state);
   const [mailSent, setMailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [initializing, setInitializing] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [showSignInMenu, setShowSignInMenu] = useState(false);
   const [showSignOutMenu, setShowSignOutMenu] = useState(false);
@@ -47,7 +48,7 @@ const AuthButton: FC = () => {
   }, []);
 
   useLayoutEffect(() => {
-    if (!user?.picture) return;
+    if (!user || !user?.picture) return;
 
     [userAvatar, userPicture].forEach((img) => {
       if (!img.current) return;
@@ -60,9 +61,15 @@ const AuthButton: FC = () => {
 
   useEffect(() => {
     request(`/auto-sign-in`).then(({ response, error }) => {
-      setInitializing(false);
+      if (!response) {
+        dispatch(
+          actions.set({
+            user: false
+          })
+        );
+      }
     });
-  }, [request]);
+  }, [request, dispatch]);
 
   useEffect(() => {
     return () => setMailSent(false);
@@ -99,7 +106,7 @@ const AuthButton: FC = () => {
 
   return (
     <div className="AuthButton">
-      {!initializing && !user && (
+      {user === false && (
         <Button
           onClick={() => {
             preventAutoHide.current = true;
@@ -113,7 +120,7 @@ const AuthButton: FC = () => {
           Sign in
         </Button>
       )}
-      {!initializing && user && (
+      {user && (
         <Button
           className="account-btn"
           onClick={() => {
@@ -129,7 +136,7 @@ const AuthButton: FC = () => {
           </span>
         </Button>
       )}
-      {!initializing && user && (
+      {user && (
         <div
           onClick={() => {
             preventAutoHide.current = true;
@@ -139,19 +146,39 @@ const AuthButton: FC = () => {
           {user.picture && <img ref={userPicture} alt="" />}
           <h4>{user.name || user.email}</h4>
           {user.name && <span>{user.email}</span>}
-          <Button
-            onClick={() => {
-              request('/sign-out').then(() => {
+          <div className="button-group">
+            <Button
+              onClick={() => {
                 setShowSignOutMenu(false);
-              });
-            }}
-            variant="light"
-          >
-            Sign out
-          </Button>
+
+                history.push('/settings');
+              }}
+              variant="light"
+            >
+              Settings
+            </Button>
+            <Button
+              onClick={() => {
+                request('/sign-out').then(() => {
+                  setShowSignOutMenu(false);
+
+                  history.push('/');
+
+                  dispatch(
+                    actions.set({
+                      user: false
+                    })
+                  );
+                });
+              }}
+              variant="light"
+            >
+              Sign out
+            </Button>
+          </div>
         </div>
       )}
-      {!user && (
+      {user === false && (
         <div
           onClick={() => {
             preventAutoHide.current = true;

@@ -106,7 +106,6 @@ export type LoadResponse = {
     created: Date;
   }[];
   users: {
-    id: string;
     name: string;
     email: string;
     password: boolean;

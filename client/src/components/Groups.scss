@@ -1,5 +1,7 @@
 @import '../variables';
 
 .Groups {
-
+  padding: 16px 16px 0;
+  display: flex;
+  flex-wrap: wrap;
 }

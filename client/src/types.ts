@@ -4,9 +4,12 @@ export type State = {
     status: number;
     message: string;
   };
-  user: null | {
-    name: string;
-    email: string;
-    picture?: string;
-  };
+  user:
+    | null
+    | false
+    | {
+        name: string;
+        email: string;
+        picture?: string;
+      };
 };

@@ -115,6 +115,23 @@ export const saveGroup = async (group: Group): Promise<Group> => {
   return { ...update, created: update.created.toDate() } as Group;
 };
 
+export const getUsersInGroups = async (groups: Group[]): Promise<User[]> => {
+  const collection = firestore.collection('users');
+  const users: { [email: string]: User } = {};
+  const slugs = groups.map((group) => group.slug);
+  const snapshot: QuerySnapshot = await collection
+    .where('groups', 'array-contains-any', slugs)
+    .get();
+
+  snapshot.forEach((doc) => {
+    const user = doc.data();
+
+    users[user.email] = user as User;
+  });
+
+  return Object.values(users);
+};
+
 export const findSessions = async (filter: {
   [key: string]: string | null;
 }): Promise<Session[]> => {
@@ -128,8 +145,6 @@ export const findSessions = async (filter: {
 
   snapshot.forEach((doc) => {
     const session = doc.data();
-
-    if (!session) return;
 
     results.push({
       ...session,
