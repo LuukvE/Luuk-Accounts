@@ -138,14 +138,13 @@ const Landing: FC = () => {
         <div>
           <h3>Introduction</h3>
           <p>
-            SignOn is an open source account system written in TypeScript. It can be easily
-            integrated with the APIs that power your business. You can download this software
-            directly from{' '}
+            SignOn is an open source account system written in TypeScript. It is meant for
+            developers that want to focus on building their other services, without losing control
+            of user authentication and authorization. You can download this software directly from{' '}
             <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Auth">
               Github
             </a>
-            . SignOn is meant for developers that just want to keep building their other services,
-            without losing control of user authentication and authorization.
+            . It can be easily integrated with the APIs that power your business.
           </p>
         </div>
         <div>
