@@ -97,9 +97,8 @@ export type SignInResponse = {
 
 export type LoadResponse = {
   type: 'load';
-  groups: {
+  ownedGroups: {
     slug: string;
-    permissions: string[];
     parent?: string;
     name: string;
     description: string;
@@ -113,6 +112,7 @@ export type LoadResponse = {
     picture: string;
     groups: string[];
   }[];
+  groups?: Group[];
   permissions?: Permission[];
   sessions?: Session[];
   links?: Link[];

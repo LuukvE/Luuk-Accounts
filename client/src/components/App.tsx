@@ -1,19 +1,31 @@
 import './App.scss';
 import 'react-app-polyfill/ie11';
 import '@fortawesome/fontawesome-free/js/all';
-import React, { FC } from 'react';
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import React, { FC, useEffect } from 'react';
+import { Switch, Route, Redirect, NavLink, useHistory } from 'react-router-dom';
 
 import { useSelector } from '../store';
+import useAuth from '../hooks/useAuth';
 
-import Groups from './Groups';
+import Users from './Users';
 import Landing from './Landing';
 import Settings from './Settings';
 import AuthButton from './AuthButton';
 
 const App: FC = () => {
   const history = useHistory();
+  const { request } = useAuth();
   const { user } = useSelector((state) => state);
+
+  useEffect(() => {
+    if (!user) return;
+
+    request('/load').then(({ response, error }) => {
+      if (error) return console.log(error);
+
+      console.log(22, response);
+    });
+  }, [request, user]);
 
   return (
     <div className="App">
@@ -25,12 +37,20 @@ const App: FC = () => {
         >
           SignOn
         </h1>
+        {user && (
+          <>
+            <NavLink to="/landing">Introduction</NavLink>
+            <NavLink to="/users">Users</NavLink>
+            <NavLink to="/logs">Logs</NavLink>
+            <NavLink to="/configuration">Configuration</NavLink>
+          </>
+        )}
         <AuthButton />
       </header>
-      {user ? (
+      {user && (
         <Switch>
-          <Route path="/groups">
-            <Groups />
+          <Route path={['/users/group/:group', '/users/user/:user', '/users']}>
+            <Users />
           </Route>
           <Route path="/settings">
             <Settings />
@@ -40,7 +60,8 @@ const App: FC = () => {
           </Route>
           <Redirect to="/" />
         </Switch>
-      ) : (
+      )}
+      {user === false && (
         <Switch>
           <Route path="/">
             <Landing />

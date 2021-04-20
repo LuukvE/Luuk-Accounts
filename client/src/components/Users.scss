@@ -1,0 +1,82 @@
+@import '../variables';
+
+.Users {
+  padding: 16px 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  background: white;
+  flex-grow: 1;
+  align-content: flex-start;
+
+  .owned-group {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-bottom: 0;
+
+    &:first-of-type {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+
+    .owned-group {
+      border-right: 0;
+      border-top-right-radius: 0;
+    }
+
+    h3 {
+      display: flex;
+      font-size: 15px;
+      font-weight: 700;
+      color: #555;
+      background: #e6e6e6;
+      align-items: center;
+      padding: 10px 10px 10px 0;
+      margin: 0;
+      border-bottom: 1px solid #ddd;
+
+      .btn-link {
+        color: #aaa;
+        &:hover {
+          color: #888;
+        }
+      }
+
+      .btn-primary {
+        margin-left: auto;
+        background: $green;
+        border: 0;
+        &:hover {
+          background: lighten($green, 5);
+        }
+      }
+    }
+
+    .user {
+      padding-left: 30px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      .btn-link {
+        margin-right: 4px;
+        color: #aaa;
+        &:hover {
+          color: #888;
+        }
+      }
+      > span {
+        margin-right: 12px;
+      }
+    }
+
+    .children {
+      margin: 12px 0 0 30px;
+      &:empty {
+        display: none;
+      }
+    }
+  }
+
+  > .owned-group {
+    border-bottom: 1px solid #ccc;
+  }
+}

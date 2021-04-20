@@ -11,26 +11,19 @@ body {
   font-family: 'Open Sans';
   font-weight: 600;
   background: #e9e9e9;
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-  &::-webkit-scrollbar-thumb:vertical {
-    margin: 5px;
-    background-color: #999;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-button:start:decrement,
-  &::-webkit-scrollbar-button:end:increment {
-    height: 5px;
-    display: block;
-  }
+  min-width: 650px;
+  height: 100vh;
 }
 
+#root {
+  height: 100%;
+}
 .App {
   display: flex;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   flex-direction: column;
+  flex-grow: 1;
 
   a {
     text-decoration: none;
@@ -60,9 +53,18 @@ body {
       font-weight: 700;
       font-size: 22px;
       color: $green;
-      margin: 0 auto 0 0;
+      margin: 0 80px 0 0;
       user-select: none;
       cursor: pointer;
+    }
+
+    > a {
+      margin-right: 18px;
+      color: $green;
+      &.active,
+      &:hover {
+        color: darken($green, 8);
+      }
     }
   }
 

@@ -180,6 +180,7 @@ export const findGroups = async (filter?: { [key: string]: string | null }): Pro
 export const getAll = async (): Promise<LoadResponse> => {
   const response: LoadResponse = {
     type: 'load',
+    ownedGroups: [],
     groups: [],
     users: [],
     permissions: [],
@@ -190,7 +191,7 @@ export const getAll = async (): Promise<LoadResponse> => {
     configurations: []
   };
 
-  const { type, groups, users, ...collections } = response;
+  const { type, ownedGroups, users, ...collections } = response;
 
   await Promise.all(
     Object.keys(collections).map(

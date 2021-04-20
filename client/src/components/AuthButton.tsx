@@ -96,13 +96,15 @@ const AuthButton: FC = () => {
     }).then(({ response }) => {
       if (!response) return;
 
+      history.push('/users');
+
       setShowSignInMenu(false);
 
       setPassword('');
 
       setEmail('');
     });
-  }, [request, forgotPassword, email, password]);
+  }, [request, history, forgotPassword, email, password]);
 
   return (
     <div className="AuthButton">
@@ -195,7 +197,7 @@ const AuthButton: FC = () => {
             <a
               className="btn btn-light"
               href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
-                window.location.href.split('/').slice(0, 3).join('/')
+                `${window.location.href.split('/').slice(0, 3).join('/')}/users`
               )}`}
               rel="noopener noreferrer"
             >

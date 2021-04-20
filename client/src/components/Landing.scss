@@ -4,7 +4,9 @@
   padding: 16px;
   display: flex;
   flex-wrap: wrap;
+  flex-grow: 1;
   background: white;
+  align-content: flex-start;
 
   > div {
     width: 50%;

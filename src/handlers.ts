@@ -397,13 +397,17 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
 
   if (!user) return notSignedIn;
 
-  const groups = await getOwnedGroups(user);
+  const ownedGroups = await getOwnedGroups(user);
 
-  const users = await getUsersInGroups(groups);
+  const users = await getUsersInGroups(ownedGroups);
 
   const response: LoadResponse = {
     type: 'load',
-    groups,
+    ownedGroups: ownedGroups.map((group) => {
+      const { permissions, ...authorization } = group;
+
+      return authorization;
+    }),
     users: users.map((user) => ({
       name: user.name,
       email: user.email,

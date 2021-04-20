@@ -5,10 +5,11 @@ import { State } from './types';
 
 const initialState: State = {
   error: null,
-  user: null
+  user: null,
+  ownedGroups: [],
+  users: []
 };
 
-// Actions are generated from the methods inside the reducers property
 export const { actions, reducer } = createSlice({
   name: 'store',
   initialState,
@@ -27,5 +28,4 @@ export default store;
 
 export { useDispatch } from 'react-redux';
 
-// Export a typed version of the useSelector hook
 export const useSelector: TypedUseSelectorHook<State> = useReduxSelector;
