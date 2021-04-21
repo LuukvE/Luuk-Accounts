@@ -549,6 +549,8 @@ export const setGroups = async (
 
   if (!user) return notSignedIn;
 
+  if (!user.groups.includes('admins')) return notAuthorized;
+
   const save = groups.map((group) =>
     saveGroup(
       {
