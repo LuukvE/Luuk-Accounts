@@ -10,6 +10,7 @@ import {
   setMe,
   setUser,
   signOut,
+  setGroups,
   publicKey,
   autoSignIn,
   signInLink,
@@ -190,6 +191,8 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
 
     return setUser(cookies, email, groups, name, sendEmail, redirect);
   }
+
+  if (url === '/set-groups') return setGroups(cookies, body.setGroups);
 };
 
 export default root;

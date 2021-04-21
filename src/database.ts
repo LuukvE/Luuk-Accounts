@@ -109,8 +109,14 @@ export const saveLink = async (link: Link): Promise<Link> => {
   return { ...update, created: update.created.toDate() } as Link;
 };
 
-export const saveGroup = async (group: Group): Promise<Group> => {
+export const saveGroup = async (group: Group, remove?: boolean): Promise<Group> => {
   const document = firestore.doc(`groups/${group.slug}`);
+
+  if (remove) {
+    await document.delete();
+
+    return null;
+  }
 
   await document.set(group, { merge: true });
 

@@ -8,6 +8,7 @@ import { useSelector } from '../store';
 import useAuth from '../hooks/useAuth';
 
 import Users from './Users';
+import Groups from './Groups';
 import Landing from './Landing';
 import Settings from './Settings';
 import AuthButton from './AuthButton';
@@ -39,6 +40,7 @@ const App: FC = () => {
               Introduction
             </NavLink>
             <NavLink to="/users">Users</NavLink>
+            {user.groups.includes('admins') && <NavLink to="/groups">Groups</NavLink>}
           </>
         )}
         <AuthButton />
@@ -48,10 +50,13 @@ const App: FC = () => {
           <Route path={['/users/group/:group', '/users/user/:user', '/users']}>
             <Users />
           </Route>
+          <Route path="/groups">
+            <Groups />
+          </Route>
           <Route path="/settings">
             <Settings />
           </Route>
-          <Route path="/">
+          <Route exact path="/">
             <Landing />
           </Route>
           <Redirect to="/" />
@@ -59,7 +64,7 @@ const App: FC = () => {
       )}
       {user === false && (
         <Switch>
-          <Route path="/">
+          <Route exact path="/">
             <Landing />
           </Route>
           <Redirect to="/" />

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 
 import { useDispatch, actions } from '../store';
+import { Group } from '../types';
 
 const apiURL = process.env.REACT_APP_API_URL;
 
@@ -66,7 +67,13 @@ const useAuth = () => {
         } else if (response.type === 'load') {
           dispatch(
             actions.set({
-              ...data
+              ...data,
+              groups:
+                data.groups?.map((group: Group) => {
+                  group.status = 'unchanged';
+
+                  return group;
+                }) || []
             })
           );
         }

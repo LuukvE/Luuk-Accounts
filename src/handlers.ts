@@ -11,9 +11,11 @@ import {
   saveUser,
   saveLink,
   saveSession,
+  findGroups,
   findSessions,
   getUsersInGroups,
-  getConfiguration
+  getConfiguration,
+  saveGroup
 } from './database';
 
 import {
@@ -36,6 +38,7 @@ import {
 } from './constants';
 
 import { mail, generateJWT, getAllGroups, getPermissions, getOwnedGroups } from './helpers';
+import { parseJSON } from 'date-fns';
 
 // GET /public-key
 export const publicKey = async (): Promise<KeyResponse> => {
@@ -233,7 +236,8 @@ export const autoSignIn = async (cookies: Cookies): Promise<null | SignInRespons
     picture: user.picture,
     password: !!user.password,
     google: !!user.google,
-    permissions
+    permissions,
+    groups: user.groups
   } as SignInResponse;
 
   response.token = await generateJWT(response);
@@ -280,7 +284,8 @@ export const manualSignIn = async (
     picture: user.picture,
     password: !!user.password,
     google: !!user.google,
-    permissions
+    permissions,
+    groups: user.groups
   } as SignInResponse;
 
   response.token = await generateJWT(response);
@@ -408,6 +413,8 @@ export const load = async (cookies: Cookies): Promise<ErrorResponse | LoadRespon
     }))
   };
 
+  if (user.groups.includes('admins')) response.groups = await findGroups();
+
   return response;
 };
 
@@ -513,6 +520,50 @@ export const setUser = async (
   const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
 
   if (sendEmail === 'welcome') await mail('welcome', userUpdate.email, linkURL);
+
+  return load(cookies);
+};
+
+// POST /set-groups
+export const setGroups = async (
+  cookies: Cookies,
+  groups: {
+    created: string;
+    slug: string;
+    permissions: string[];
+    owner: string;
+    parent: string;
+    name: string;
+    status: string;
+  }[]
+): Promise<ErrorResponse | LoadResponse> => {
+  const sessionID = cookies.get(cookieName, { signed: true });
+
+  if (!sessionID) return notSignedIn;
+
+  const session = await getSession(sessionID);
+
+  if (!session || session.expired) return notSignedIn;
+
+  const user = await getUser(session.user);
+
+  if (!user) return notSignedIn;
+
+  const save = groups.map((group) =>
+    saveGroup(
+      {
+        slug: group.slug,
+        permissions: group.permissions,
+        owner: group.owner,
+        parent: group.parent || null,
+        name: group.name,
+        created: group.created ? parseJSON(group.created) : new Date()
+      },
+      group.status === 'deleted'
+    )
+  );
+
+  await Promise.all(save);
 
   return load(cookies);
 };

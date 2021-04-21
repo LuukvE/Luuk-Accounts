@@ -1,8 +1,18 @@
+export type OwnedGroup = {
+  slug: string;
+  parent: string | null;
+  name: string;
+  created: string;
+};
+
 export type Group = {
   slug: string;
   parent: string | null;
   name: string;
   created: string;
+  owner: string;
+  permissions: string[];
+  status: string; // unchanged, changed, new, deleted
 };
 
 export type User = {
@@ -15,7 +25,7 @@ export type User = {
 };
 
 export type Hiarchy = {
-  group: Group;
+  group: OwnedGroup;
   children: Hiarchy;
   users: User[];
 }[];
@@ -35,7 +45,12 @@ export type State = {
         email: string;
         picture?: string;
         permissions: string[];
+        groups: string[];
+        token: string;
+        password: boolean;
+        google: boolean;
       };
-  ownedGroups: Group[];
+  ownedGroups: OwnedGroup[];
   users: User[];
+  groups: Group[];
 };

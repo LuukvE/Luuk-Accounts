@@ -1,0 +1,94 @@
+@import '../variables';
+
+.Groups {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  padding: 16px;
+  background: white;
+  .table-wrapper {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: auto;
+    position: relative;
+    background: #e6e6e6;
+  }
+  > .btn {
+    background: $green;
+    border: 0;
+    margin-top: 15px;
+    &[disabled] {
+      background: #ccc;
+      cursor: default;
+      &:hover {
+        background: #ccc;
+      }
+    }
+    &:hover {
+      background: lighten($green, 5);
+    }
+  }
+  .table {
+    background: white;
+    margin: 0;
+    th {
+      padding: 9px 24px;
+      border-right: 1px solid #ccc;
+      vertical-align: middle;
+      color: #555;
+      background: #e6e6e6;
+      &:last-of-type {
+        border-right: 0;
+      }
+    }
+    tr:last-of-type {
+      td {
+        border-bottom-color: transparent;
+        &:last-of-type {
+          border-right-color: transparent;
+        }
+      }
+    }
+    td {
+      padding: 0;
+      position: relative;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      &.slug,
+      &.name,
+      &.parent,
+      &.owner {
+        min-width: 180px;
+        textarea {
+          min-width: 180px;
+        }
+      }
+      &.permissions {
+        textarea {
+          position: initial;
+        }
+      }
+      &.action {
+        min-width: 40px;
+        width: 40px;
+        text-align: center;
+        border-right: 0;
+        padding-top: 10px;
+      }
+      textarea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        border: 0;
+        outline: 0;
+        padding: 12px;
+        box-shadow: none;
+        border-radius: 4px;
+        resize: none;
+        background: transparent;
+      }
+    }
+  }
+}

@@ -99,6 +99,7 @@ type RedirectResponse = {
 type SignInResponse = {
   type: 'sign-in';
   token?: string;
+  groups: string[];
   permissions: string[];
   email: string;
   name: string;
@@ -123,6 +124,7 @@ type LoadResponse = {
     picture: string;
     groups: string[];
   }[];
+  groups?: Group[];
 };
 
 // Request Body
@@ -133,5 +135,14 @@ type RequestBody = null | {
   redirect?: string;
   password?: string;
   sendEmail?: string;
+  setGroups?: {
+    created: string;
+    slug: string;
+    permissions: string[];
+    owner: string;
+    parent: string;
+    name: string;
+    status: string;
+  }[];
 };
 ```

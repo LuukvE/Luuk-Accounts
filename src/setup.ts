@@ -30,11 +30,19 @@ if (!process.argv[2]) throw 'ERROR - Provide the email of the root user';
   await Promise.all([
     firestore.doc(`users/${process.argv[2]}`).set({
       email: process.argv[2],
-      name: 'Root',
-      groups: ['root'],
+      name: 'Administrator',
+      groups: ['admins'],
       password: null,
       google: null,
       picture: null,
+      created: new Date()
+    }),
+    firestore.doc(`groups/admins`).set({
+      slug: 'admins',
+      permissions: ['admin:full-acccess'],
+      owner: 'admin:full-acccess',
+      parent: null,
+      name: 'Administrators',
       created: new Date()
     }),
     firestore.doc(`configurations/private-key`).set({
@@ -70,14 +78,6 @@ if (!process.argv[2]) throw 'ERROR - Provide the email of the root user';
       subject: 'Welcome to Luuk Accounts',
       text: 'Sign in by going to $linkURL',
       html: 'Sign in by going to <a href="$linkURL">$linkURL</a>'
-    }),
-    firestore.doc(`groups/root`).set({
-      slug: 'root',
-      permissions: ['administrator'],
-      owner: 'administrator',
-      parent: null,
-      name: 'Administrators',
-      created: new Date()
     })
   ]);
 })();

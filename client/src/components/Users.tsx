@@ -11,7 +11,7 @@ import Form from 'react-bootstrap/Form';
 import { useSelector } from '../store';
 import useAuth from '../hooks/useAuth';
 import useQuery from '../hooks/useQuery';
-import { Hiarchy, Group } from '../types';
+import { Hiarchy, OwnedGroup } from '../types';
 
 const GroupBlock: FC<{ index: number; hiarchy: Hiarchy }> = ({ index, hiarchy }) => {
   const history = useHistory();
@@ -104,7 +104,7 @@ const Users: FC = () => {
   );
 
   const hiarchy: Hiarchy = useMemo(() => {
-    const groups = ownedGroups.reduce((obj: { [slug: string]: Group }, ownedGroup) => {
+    const groups = ownedGroups.reduce((obj: { [slug: string]: OwnedGroup }, ownedGroup) => {
       obj[ownedGroup.slug] = ownedGroup;
 
       return obj;
@@ -114,7 +114,7 @@ const Users: FC = () => {
       return !ownedGroup.parent || !groups[ownedGroup.parent];
     });
 
-    const getHiarchy = (hiarchy: Hiarchy, parents: Group[]) => {
+    const getHiarchy = (hiarchy: Hiarchy, parents: OwnedGroup[]) => {
       return parents.reduce((hiarchy: Hiarchy, group) => {
         const children = ownedGroups.filter((child) => {
           return child.parent === group.slug;

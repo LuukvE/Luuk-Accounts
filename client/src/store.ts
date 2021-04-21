@@ -8,7 +8,8 @@ const initialState: State = {
   error: null,
   user: null,
   ownedGroups: [],
-  users: []
+  users: [],
+  groups: []
 };
 
 export const { actions, reducer } = createSlice({
@@ -18,6 +19,20 @@ export const { actions, reducer } = createSlice({
     set: (state, action) => ({ ...state, ...action.payload }),
     changeRequests: (state, action) => {
       state.requests += action.payload;
+    },
+    updateGroup: (state, action) => {
+      const { index, ...update } = action.payload;
+
+      if (update.status === 'deleted' && state.groups[index].status === 'new') {
+        state.groups.splice(index, 1);
+      } else {
+        state.groups[index] = {
+          ...state.groups[index],
+          ...update
+        };
+
+        if (state.groups[index].status === 'unchanged') state.groups[index].status = 'changed';
+      }
     }
   }
 });

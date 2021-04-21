@@ -69,6 +69,7 @@ export type RedirectResponse = {
 export type SignInResponse = {
   type: 'sign-in';
   token?: string;
+  groups: string[];
   permissions: string[];
   email: string;
   name: string;
@@ -93,6 +94,7 @@ export type LoadResponse = {
     picture: string;
     groups: string[];
   }[];
+  groups?: Group[];
 };
 
 // Request Body
@@ -103,4 +105,13 @@ export type RequestBody = null | {
   redirect?: string;
   password?: string;
   sendEmail?: string;
+  setGroups?: {
+    created: string;
+    slug: string;
+    permissions: string[];
+    owner: string;
+    parent: string;
+    name: string;
+    status: string;
+  }[];
 };
