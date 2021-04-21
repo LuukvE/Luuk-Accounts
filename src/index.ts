@@ -12,6 +12,8 @@ dotenv.config({
   path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV || 'development'}`)
 });
 
+console.log(`.env.${process.env.NODE_ENV || 'development'}`);
+
 const httpHandler: RequestListener = async function httpHandler(request, response) {
   if (request.url.indexOf('/api/') !== 0) return file(request, response);
 
