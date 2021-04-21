@@ -135,19 +135,21 @@ const Landing: FC = () => {
         </h2>
       </div>
       <main className="Landing">
-        <div>
+        <div className="introduction">
           <h3>Introduction</h3>
           <p>
             Luuk Accounts is an open source account system written in TypeScript. It is meant for
             developers that want to focus on building their other services, without losing control
             of user authentication and authorization. You can download this software directly from{' '}
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Luuk-Accounts">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/LuukvE/Luuk-Accounts"
+            >
               Github
             </a>
             . It can be easily integrated with the APIs that power your business.
           </p>
-        </div>
-        <div>
           <h3>Functionality</h3>
           <ul>
             <li>Sign in with Google or with an email and password</li>
@@ -156,13 +158,26 @@ const Landing: FC = () => {
             <li>Allow specific groups to manage other users through a user interface</li>
           </ul>
         </div>
+        <div className="youtube">
+          <iframe
+            src="https://www.youtube.com/embed/-va7Lpnu4EM"
+            title="Youtube"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
         <div>
           <h3>Benefits</h3>
           <ul>
             <li>Complete freedom in designing the interface you want your users to experience</li>
             <li>
               Absolute flexibility in delivering features and solving bugs, you have all the{' '}
-              <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuukvE/Luuk-Accounts">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/LuukvE/Luuk-Accounts"
+              >
                 source code
               </a>
             </li>

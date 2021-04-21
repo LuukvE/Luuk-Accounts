@@ -148,7 +148,7 @@ export const googleSignIn = async (
 
   cookies.set(cookieName, session.id, {
     ...cookieOptions,
-    expires: new Date(2050, 1, 1)
+    expires: new Date(2070, 1, 1)
   });
 
   return {

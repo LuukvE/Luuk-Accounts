@@ -13,6 +13,34 @@
     padding: 12px 16px 0;
     font-weight: 500;
     line-height: 1.9;
+    margin-bottom: 12px;
+
+    &.introduction {
+      display: flex;
+      flex-direction: column;
+      p {
+        margin-bottom: auto;
+        padding-bottom: 24px;
+      }
+      ul {
+        margin-bottom: auto;
+      }
+    }
+
+    &.youtube {
+      position: relative;
+      padding-top: 22.5%;
+      align-self: center;
+
+      > iframe {
+        position: absolute;
+        left: 15px;
+        top: 0;
+        height: 100%;
+        width: 80%;
+        border-radius: 4px;
+      }
+    }
 
     a {
       color: lighten($green, 5);

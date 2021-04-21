@@ -4,7 +4,7 @@ import jwksRsa from 'jwks-rsa';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const client = jwksRsa({
-  jwksUri: 'https://localhost:8443/public-key.json'
+  jwksUri: 'https://localhost:8443/api/public-key.json'
 });
 
 const token = ''; // Copy from `token` property inside a sign-in server response
