@@ -105,23 +105,23 @@ const get = (url: string, cookies: Cookies) => {
   const uri = new URL(url, process.env.API_URL);
   const params = querystring.parse(uri.search.substring(1));
 
-  if (url === '/') return null;
+  if (url === '/api') return null;
 
-  if (url === '/public-key.json') return publicKey();
+  if (url === '/api/public-key.json') return publicKey();
 
-  if (url.indexOf('/google-redirect?') === 0) {
+  if (url.indexOf('/api/google-redirect?') === 0) {
     if (typeof params.redirect !== 'string') return missingFields;
 
     return googleRedirect(params.redirect);
   }
 
-  if (url.indexOf('/sign-in-link?') === 0) {
+  if (url.indexOf('/api/sign-in-link?') === 0) {
     if (typeof params.id !== 'string') return missingFields;
 
     return signInLink(cookies, params.id);
   }
 
-  if (url.indexOf('/google-sign-in?') === 0) {
+  if (url.indexOf('/api/google-sign-in?') === 0) {
     if (typeof params.code !== 'string' || typeof params.state !== 'string') {
       return missingFields;
     }
@@ -131,9 +131,9 @@ const get = (url: string, cookies: Cookies) => {
 };
 
 const post = (url: string, cookies: Cookies, body: RequestBody) => {
-  if (url === '/auto-sign-in') return autoSignIn(cookies);
+  if (url === '/api/auto-sign-in') return autoSignIn(cookies);
 
-  if (url === '/sign-in') {
+  if (url === '/api/sign-in') {
     const { email, password } = body;
 
     if (typeof email !== 'string' || typeof password !== 'string') return missingFields;
@@ -141,7 +141,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
     return manualSignIn(cookies, email, password);
   }
 
-  if (url === '/sign-up') {
+  if (url === '/api/sign-up') {
     const { email, password, redirect, name } = body;
 
     if (
@@ -156,7 +156,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
     return manualSignUp(email, password, redirect, name);
   }
 
-  if (url === '/forgot-password') {
+  if (url === '/api/forgot-password') {
     const { email, redirect } = body;
 
     if (typeof email !== 'string' || typeof redirect !== 'string') return missingFields;
@@ -164,11 +164,11 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
     return forgotPassword(email, redirect);
   }
 
-  if (url === '/sign-out') return signOut(cookies);
+  if (url === '/api/sign-out') return signOut(cookies);
 
-  if (url === '/load') return load(cookies);
+  if (url === '/api/load') return load(cookies);
 
-  if (url === '/set-me') {
+  if (url === '/api/set-me') {
     const { name, password } = body;
 
     if ((name && typeof name !== 'string') || (password && typeof password !== 'string')) {
@@ -178,7 +178,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
     return setMe(cookies, name, password);
   }
 
-  if (url === '/set-user') {
+  if (url === '/api/set-user') {
     const { email, sendEmail, groups, name, redirect } = body;
 
     if ([email, name, sendEmail, redirect].find((prop) => typeof prop !== 'string')) {
@@ -192,7 +192,7 @@ const post = (url: string, cookies: Cookies, body: RequestBody) => {
     return setUser(cookies, email, groups, name, sendEmail, redirect);
   }
 
-  if (url === '/set-groups') return setGroups(cookies, body.setGroups);
+  if (url === '/api/set-groups') return setGroups(cookies, body.setGroups);
 };
 
 export default root;
