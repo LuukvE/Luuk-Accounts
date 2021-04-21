@@ -49,7 +49,7 @@ http
 const certPath = './ssl';
 
 const creds = {
-  key: fs.readFileSync(`${certPath}/key.pem`, 'utf8'),
+  key: fs.readFileSync(`${certPath}/privkey.pem`, 'utf8'),
   cert: fs.readFileSync(`${certPath}/cert.pem`, 'utf8')
 } as any;
 
