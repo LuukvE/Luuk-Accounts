@@ -12,8 +12,6 @@ dotenv.config({
   path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV || 'development'}`)
 });
 
-console.log(`.env.${process.env.NODE_ENV || 'development'}`);
-
 const httpHandler: RequestListener = async function httpHandler(request, response) {
   if (request.url.indexOf('/api/') !== 0) return file(request, response);
 
@@ -42,7 +40,7 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
 
 http
   .createServer((request, response) => {
-    response.writeHead(302, { Location: `${process.env.API_URL}${request.url}` });
+    response.writeHead(302, { Location: `https://accounts.luuk.gg${request.url}` });
     response.end();
   })
   .listen(process.env.HTTP_PORT);
