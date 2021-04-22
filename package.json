@@ -12,6 +12,7 @@
     "@types/jsonwebtoken": "^8.5.1",
     "@types/node": "^14.14.35",
     "@types/node-fetch": "^2.5.8",
+    "bcrypt": "^5.0.1",
     "cookies": "^0.8.0",
     "date-fns": "^2.19.0",
     "dotenv": "^8.2.0",
@@ -46,5 +47,8 @@
     "printWidth": 100,
     "trailingComma": "none",
     "endOfLine": "auto"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.1"
   }
 }

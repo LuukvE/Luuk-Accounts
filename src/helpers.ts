@@ -1,5 +1,6 @@
 import sendgrid from '@sendgrid/mail';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -45,15 +46,28 @@ export const mail = async (
   };
 };
 
+export const hashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, 10);
+};
+
+export const passwordMatches = async (password: string, hash: string): Promise<boolean> => {
+  return await bcrypt.compare(password, hash);
+};
+
 export const generateJWT = async (response: SignInResponse): Promise<string> => {
   const configuration = await getConfiguration('private-key');
 
   return new Promise<string>((resolve) => {
-    jwt.sign(response, configuration.value, { algorithm: 'RS256' }, (err, signed) => {
-      if (err) console.log('jwt generation failed', err);
+    jwt.sign(
+      response,
+      configuration.value,
+      { expiresIn: '3h', algorithm: 'RS256' },
+      (err, signed) => {
+        if (err) console.log('jwt generation failed', err);
 
-      resolve(signed || '');
-    });
+        resolve(signed || '');
+      }
+    );
   });
 };
 

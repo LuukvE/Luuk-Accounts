@@ -2,6 +2,11 @@
 
 A complete authentication and user management solution.
 
+## Potential Improvements
+
+- Refresh tokens
+- Look into pkce auth flow
+
 ## Functionality
 
 - [x] Sign in with Google or with an email and password

@@ -42,7 +42,10 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
 
   const { url, method, headers } = request;
 
-  if (headers.origin && !origins.includes(headers.origin)) {
+  if (
+    (['POST', 'OPTIONS'].includes(method) || headers.origin) &&
+    !origins.includes(headers.origin)
+  ) {
     response.writeHead(403);
 
     return response.end();
@@ -104,8 +107,6 @@ const root = async (request: IncomingMessage, response: ServerResponse, body: Re
 const get = (url: string, cookies: Cookies) => {
   const uri = new URL(url, process.env.API_URL);
   const params = querystring.parse(uri.search.substring(1));
-
-  if (url === '/api') return null;
 
   if (url === '/api/public-key.json') return publicKey();
 

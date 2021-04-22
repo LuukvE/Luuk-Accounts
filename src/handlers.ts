@@ -37,7 +37,15 @@ import {
   passwordInsecure
 } from './constants';
 
-import { mail, generateJWT, getAllGroups, getPermissions, getOwnedGroups } from './helpers';
+import {
+  mail,
+  hashPassword,
+  passwordMatches,
+  generateJWT,
+  getAllGroups,
+  getPermissions,
+  getOwnedGroups
+} from './helpers';
 import { parseJSON } from 'date-fns';
 
 // GET /public-key
@@ -253,9 +261,11 @@ export const manualSignIn = async (
 ): Promise<ErrorResponse | SignInResponse> => {
   const user = await getUser(email.toLowerCase());
 
-  const hash = crypto.createHash('sha256').update(password).digest('hex');
+  if (!user || !user.password) return wrongCredentials;
 
-  if (!user || user.password !== hash) return wrongCredentials;
+  const matches = await passwordMatches(password, user.password);
+
+  if (!matches) return wrongCredentials;
 
   const sessions = await findSessions({ user: user.email, expired: null });
 
@@ -307,7 +317,7 @@ export const manualSignUp = async (
   // If password too short return password insecure error
   if (!password) return passwordInsecure;
 
-  const hash = crypto.createHash('sha256').update(password).digest('hex');
+  const hash = await hashPassword(password);
 
   // Create a link
   const link = await saveLink({
@@ -428,7 +438,7 @@ export const setMe = async (
 
   if (!signin) return notSignedIn;
 
-  const hash = password ? crypto.createHash('sha256').update(password).digest('hex') : null;
+  const hash = password ? await hashPassword(password) : null;
 
   const user = await getUser(signin.email);
 
