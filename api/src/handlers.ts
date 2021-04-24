@@ -67,7 +67,7 @@ export const googleRedirect = async (redirect: string): Promise<RedirectResponse
     access_type: 'offline',
     client_id: process.env.GOOGLE_CLIENT_ID || '',
     state: Buffer.from(redirect).toString('base64'),
-    redirect_uri: `${process.env.API_URL}/google-sign-in`,
+    redirect_uri: `${process.env.API_URL}/api/google-sign-in`,
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email'
@@ -98,7 +98,7 @@ export const googleSignIn = async (
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${process.env.API_URL}/google-sign-in`,
+      redirect_uri: `${process.env.API_URL}/api/google-sign-in`,
       grant_type: 'authorization_code'
     })
   }).catch((error) => console.log(error));
@@ -330,7 +330,7 @@ export const manualSignUp = async (
     created: new Date()
   });
 
-  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
+  const linkURL = `${process.env.API_URL}/api/sign-in-link?id=${link.id}`;
 
   const { success } = await mail('sign-up', email, linkURL);
 
@@ -358,7 +358,7 @@ export const forgotPassword = async (
     created: new Date()
   });
 
-  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
+  const linkURL = `${process.env.API_URL}/api/sign-in-link?id=${link.id}`;
 
   const { success } = await mail('forgot-password', user.email, linkURL);
 
@@ -527,7 +527,7 @@ export const setUser = async (
     created: new Date()
   });
 
-  const linkURL = `${process.env.API_URL}/sign-in-link?id=${link.id}`;
+  const linkURL = `${process.env.API_URL}/api/sign-in-link?id=${link.id}`;
 
   if (sendEmail === 'welcome') await mail('welcome', userUpdate.email, linkURL);
 

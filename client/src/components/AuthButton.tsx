@@ -194,7 +194,9 @@ const AuthButton: FC = () => {
           >
             <a
               className="btn btn-light"
-              href={`${process.env.REACT_APP_API_URL}/google-redirect?redirect=${encodeURIComponent(
+              href={`${
+                process.env.REACT_APP_API_URL
+              }/api/google-redirect?redirect=${encodeURIComponent(
                 `${window.location.href.split('/').slice(0, 3).join('/')}/users`
               )}`}
               rel="noopener noreferrer"

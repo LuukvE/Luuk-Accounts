@@ -3,8 +3,6 @@ import { useState, useCallback, useRef } from 'react';
 import { useDispatch, actions } from '../store';
 import { Group } from '../types';
 
-const apiURL = process.env.REACT_APP_API_URL;
-
 const useAuth = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -27,7 +25,7 @@ const useAuth = () => {
       const { signal } = (abort.current = new AbortController());
 
       try {
-        const res = await fetch(`${apiURL}${url}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api${url}`, {
           method: 'POST',
           mode: 'cors',
           signal,

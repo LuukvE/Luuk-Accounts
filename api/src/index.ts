@@ -38,7 +38,7 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
   });
 };
 
-if (!process.env.HTTP_PORT) {
+if (!process.env.HTTPS_PORT) {
   http.createServer(httpHandler).listen(process.env.PORT);
 } else {
   http
