@@ -25,11 +25,17 @@
     "react-scripts": "4.0.2",
     "react-select": "^4.3.0",
     "react-svg": "^13.0.0",
-    "typescript": "~3.9.5"
+    "typescript": "~3.9.5",
+    "@types/node": "^12.20.7",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "node-sass": "^4.14.1",
+    "prettier": "^2.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "source-map-explorer": "^2.4.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "start": "react-scripts start"
   },
   "eslintConfig": {
     "extends": [
@@ -59,14 +65,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/node": "^12.20.7",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "node-sass": "^4.14.1",
-    "prettier": "^2.0.5",
-    "redux-devtools-extension": "^2.13.8",
-    "source-map-explorer": "^2.4.2"
   }
 }

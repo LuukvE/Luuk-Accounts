@@ -9,12 +9,12 @@ const file: RequestListener = (request, response) => {
   const uri = new URL(request.url, `https://irrelevant.gg`).pathname;
 
   // Construct the file path on our local drive
-  let filename = path.join(__dirname, '..', 'client', 'build', path.resolve('/', uri));
+  let filename = path.join(__dirname, '..', '..', 'client', 'build', path.resolve('/', uri));
 
   // Check if file can be read
   fs.access(filename, fs.constants.R_OK, (err) => {
     // If it can't be read, update file path to index file path instead
-    if (err) filename = path.join(__dirname, '..', 'client', 'build', 'index.html');
+    if (err) filename = path.join(__dirname, '..', '..', 'client', 'build', 'index.html');
 
     // If the path is a folder, change file path to {folder}/index.html
     if (fs.statSync(filename).isDirectory()) filename += '/index.html';
