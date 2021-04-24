@@ -38,25 +38,27 @@ const httpHandler: RequestListener = async function httpHandler(request, respons
   });
 };
 
-http
-  .createServer((request, response) => {
-    response.writeHead(302, { Location: `https://accounts.luuk.gg${request.url}` });
-    response.end();
-  })
-  .listen(process.env.HTTP_PORT);
+if (!process.env.HTTP_PORT) {
+  http.createServer(httpHandler).listen(process.env.PORT);
+} else {
+  http
+    .createServer((request, response) => {
+      response.writeHead(302, { Location: `${process.env.API_URL}${request.url}` });
+      response.end();
+    })
+    .listen(process.env.PORT);
 
-// Host the API using SSL certificates from the ./ssl folder, ignored by Git
-const certPath = './ssl';
+  // Host the API using SSL certificates from the ./ssl folder, ignored by Git
+  const creds = {
+    key: fs.readFileSync(`./ssl/privkey.pem`, 'utf8'),
+    cert: fs.readFileSync(`./ssl/cert.pem`, 'utf8')
+  } as any;
 
-const creds = {
-  key: fs.readFileSync(`${certPath}/privkey.pem`, 'utf8'),
-  cert: fs.readFileSync(`${certPath}/cert.pem`, 'utf8')
-} as any;
+  try {
+    creds.ca = fs.readFileSync(`./ssl/chain.pem`, 'utf8');
+  } catch (e) {}
 
-try {
-  creds.ca = fs.readFileSync(`${certPath}/chain.pem`, 'utf8');
-} catch (e) {}
-
-https.createServer(creds, httpHandler).listen(process.env.HTTPS_PORT);
+  https.createServer(creds, httpHandler).listen(process.env.HTTPS_PORT);
+}
 
 console.log(`API: ${process.env.API_URL}`);

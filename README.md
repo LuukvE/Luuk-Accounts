@@ -1,25 +1,35 @@
-# Luuk Accounts
+# **Luuk Accounts**
 
 A complete authentication and user management solution.
 
-## Potential Improvements
-
-- Refresh tokens
-- Look into pkce auth flow
-
-## Functionality
+## **Functionality**
 
 - [x] Sign in with Google or with an email and password
 - [x] Authorize your users by giving permissions to nested groups
 - [x] Authenticate your users on your other APIs using JWT tokens
 - [x] Allow specific groups to manage other users through a user interface
 
-## Services
+## **Services**
 
 - **Sendgrid:** sends create account and forgot password e-mails
 - **Google Cloud Firestore:** stores accounts and software configuration
 
-## Considerations
+## **Installation**
+
+### **Get SSL an certificate**
+
+`cert.pem`, `privkey.pem` and optionally `chain.pem` are loaded from the `api/server` folder.
+
+#### **Development**
+
+`openssl req -new -newkey rsa:4096 -days 9999 -nodes -x509 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.irrelevant.gg" -keyout privkey.pem -out cert.pem`
+
+#### **Production**
+
+Currently I host my server on Google Cloud Run, and therefore do not need to generate my own SSL certificate. But should you need to, here is a certbot command you could run:
+`certbot certonly -d <YOUR_DOMAIN> -m <YOUR_EMAIL> --standalone --no-eff-email --non-interactive --agree-tos`
+
+## **Considerations**
 
 - Passwords are hashed before saved
 - Email addresses are case-insensitive
@@ -30,7 +40,7 @@ A complete authentication and user management solution.
 - The group owner property refers to a permission required to add or remove users from that group
 - Links are used to sign up and sign in a user when they follow the link from their e-mail client
 
-## Types
+## **Types**
 
 ```typescript
 // Database Objects
@@ -86,23 +96,23 @@ type Configuration = {
 // Response Objects
 
 type KeyResponse = {
-  type: 'key';
+  type: "key";
   key: string;
 };
 
 type ErrorResponse = {
-  type: 'error';
+  type: "error";
   status: number;
   message: string;
 };
 
 type RedirectResponse = {
-  type: 'redirect';
+  type: "redirect";
   location: string;
 };
 
 type SignInResponse = {
-  type: 'sign-in';
+  type: "sign-in";
   token?: string;
   groups: string[];
   permissions: string[];
@@ -114,7 +124,7 @@ type SignInResponse = {
 };
 
 type LoadResponse = {
-  type: 'load';
+  type: "load";
   ownedGroups: {
     slug: string;
     parent: string | null;

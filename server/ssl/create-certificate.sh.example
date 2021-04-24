@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# certbot certonly --no-eff-email -d <YOUR_DOMAIN> --no-eff-email \
-#   --non-interactive --agree-tos -m <YOUR_EMAIL>
-
-RUN openssl req -new -newkey rsa:4096 -days 9999 -nodes -x509 \
-    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.irrelevant.gg" \
-    -keyout privkey.pem  -out cert.pem

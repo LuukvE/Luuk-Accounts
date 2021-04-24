@@ -4,12 +4,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vscode/launch.json
-.env
 .env.production
 .env.development
 google-service.json
 build
-cert.pem
-privkey.pem
-chain.pem
-create-certificate.sh
+ssl
+.gcloudignore

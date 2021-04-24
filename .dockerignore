@@ -1,7 +1,5 @@
+.git
 **/node_modules
 **/npm-debug.log
-.git
-cert.pem
-privkey.pem
-chain.pem
-build
+**/ssl
+**/build
