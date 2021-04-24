@@ -9,4 +9,4 @@ yarn-error.log*
 google-service.json
 build
 ssl
-.gcloudignore
+commands.md

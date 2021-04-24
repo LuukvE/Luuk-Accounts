@@ -1,5 +1,5 @@
 {
-  "name": "auth-test",
+  "name": "accounts-luuk-gg-client",
   "author": {
     "name": "Luuk van Egeraat"
   },
@@ -35,7 +35,8 @@
     "source-map-explorer": "^2.4.2"
   },
   "scripts": {
-    "start": "react-scripts start"
+    "start": "react-scripts start",
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": [
