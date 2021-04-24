@@ -14,21 +14,6 @@ A complete authentication and user management solution.
 - **Sendgrid:** sends create account and forgot password e-mails
 - **Google Cloud Firestore:** stores accounts and software configuration
 
-## **Installation**
-
-### **Get SSL an certificate**
-
-`cert.pem`, `privkey.pem` and optionally `chain.pem` are loaded from the `api/server` folder.
-
-#### **Development**
-
-`openssl req -new -newkey rsa:4096 -days 9999 -nodes -x509 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.irrelevant.gg" -keyout privkey.pem -out cert.pem`
-
-#### **Production**
-
-Currently I host my server on Google Cloud Run, and therefore do not need to generate my own SSL certificate. But should you need to, here is a certbot command you could run:
-`certbot certonly -d <YOUR_DOMAIN> -m <YOUR_EMAIL> --standalone --no-eff-email --non-interactive --agree-tos`
-
 ## **Considerations**
 
 - Passwords are hashed before saved
@@ -39,6 +24,18 @@ Currently I host my server on Google Cloud Run, and therefore do not need to gen
 - Users get the permissions attached to the groups they are in and the groups nested inside of them
 - The group owner property refers to a permission required to add or remove users from that group
 - Links are used to sign up and sign in a user when they follow the link from their e-mail client
+
+## **Installation**
+1. Run `npm install` inside both the `/api` and `/client` folder
+2. Create environment variable files `.env.production` and `.env.development` in both the `/api` and `/client` folder
+3. Add a `google-service.json` file to the `/api` folder. You can get this file from Google Cloud Console
+4. Create SSL certificate files in the `/api/ssl` folder. *I host my server on Google Cloud Run, and therefore I only need to configure this for local development*
+    1. Set the `HTTPS_PORT` in the `.env.production` and `.env.development` files in the `/api` folder
+    2. On your local machine run `openssl req -new -newkey rsa:4096 -days 9999 -nodes -x509 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.irrelevant.gg" -keyout privkey.pem -out cert.pem`
+    3. On your server run `certbot certonly -d <YOUR_DOMAIN> -m <YOUR_EMAIL> --standalone --no-eff-email --non-interactive --agree-tos`
+    4. Put `cert.pem`, `privkey.pem` and optionally `chain.pem` in the `api/ssl` folder
+
+I have added a `Dockerfile` for those that want to deploy this application as a container. The client should still be built on your local machine using `npm run-script build` before creating and deploying your image.
 
 ## **Types**
 
