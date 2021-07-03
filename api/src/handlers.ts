@@ -138,6 +138,7 @@ export const googleSignIn = async (
     created: new Date(),
     email: googleUser.email,
     name: googleUser.name,
+    groups: [],
     google: googleUser.id,
     ...foundUser,
     picture: googleUser.picture || ''
